@@ -5,9 +5,6 @@ require 'active_record/railtie'
 ActiveRecord::Base.logger = Logger.new(STDERR)
 ActiveRecord::Base.logger.level = 3
 
-require 'coveralls'
-Coveralls.wear!
-
 require 'acts_as_taggable_array_on'
 
 #Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each {|f| require f}
