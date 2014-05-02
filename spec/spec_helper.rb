@@ -21,7 +21,7 @@ RSpec.configure do |config|
     ActiveRecord::Base.establish_connection(
       adapter: "postgresql", 
       encoding: 'unicode',
-      database: "acts-as-taggable-array-on_development",
+      database: "acts-as-taggable-array-on_test",
       username: "acts-as-taggable-array-on"
     )
     create_database

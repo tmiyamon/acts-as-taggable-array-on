@@ -1,0 +1,15 @@
+language: ruby
+rvm:
+  - 2.0.0
+  - 2.1.1
+addons:
+  postgresql: 9.3
+gemfile:
+  - gemfiles/rails_4.0.gemfile
+  - gemfiles/rails_4.1.gemfile
+before_script:
+  - createuser -d acts-as-taggable-array-on -U postgres
+  - createdb --username=acts-as-taggable-array-on acts-as-taggable-array-on_test
+script:
+  - bundle
+  - bundle exec rspec
