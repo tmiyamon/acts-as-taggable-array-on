@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["miyamototakuya@gmail.com"]
   spec.summary       = %q{Simple tagging gem for Rails using postgres array.}
   spec.description   = %q{Simple tagging gem for Rails using postgres array.}
-  spec.homepage      = ""
+  spec.homepage      = "https://github.com/tmiyamon/acts-as-taggable-array-on"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0")
