@@ -14,12 +14,18 @@ module ActsAsTaggableArrayOn
         scope :"without_all_#{tag_name}", ->(* tags){where.not("#{tag_name} @> ARRAY[?]", tags)}
 
         self.class.class_eval do
-          define_method :"all_#{tag_name}" do
-            all.uniq.pluck("unnest(#{tag_name})")
+          define_method :"all_#{tag_name}" do |options = {}, &block|
+            query_scope = all
+            query_scope = query_scope.merge(instance_eval(&block)) if block
+
+            query_scope.uniq.pluck("unnest(#{table_name}.#{tag_name})")
           end
 
-          define_method :"#{tag_name}_cloud" do
-            from(select("unnest(#{tag_name}) as tag")).group('tag').order('tag').pluck('tag, count(*) as count')
+          define_method :"#{tag_name}_cloud" do |options = {}, &block|
+            query_scope = select("unnest(#{table_name}.#{tag_name}) as tag")
+            query_scope = query_scope.merge(instance_eval(&block)) if block
+
+            from(query_scope).group('tag').order('tag').pluck('tag, count(*)')
           end
         end
       end

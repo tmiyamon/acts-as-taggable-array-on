@@ -116,6 +116,12 @@ User.tags_cloud
 # [['awesome' => 1], ['slick' => 2]]
 ```
 
+Tag cloud calculation uses subquery internally. To add scopes to the query, use block.
+
+```ruby
+User.tags_cloud { where name: ['ken', 'tom'] }
+```
+
 ### All Tags
 
 Can get all tags easily.
@@ -124,6 +130,14 @@ Can get all tags easily.
 User.all_tags
 # ['awesome', 'slick']
 ```
+
+As the same to tag cloud calculation, you can use block to add scopes to the query.
+
+
+```ruby
+User.all_tags { where name: ['ken', 'tom'] }
+```
+
 
 ## Contributing
 

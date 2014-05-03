@@ -2,9 +2,9 @@ require 'spec_helper'
 
 describe ActsAsTaggableArrayOn::Taggable do
   before do 
-    @user1 = User.create colors: ['red', 'blue']
-    @user2 = User.create colors: ['black', 'white', 'red']
-    @user3 = User.create colors: ['black', 'blue']
+    @user1 = User.create name: 'Tom', colors: ['red', 'blue']
+    @user2 = User.create name: 'Ken', colors: ['black', 'white', 'red']
+    @user3 = User.create name: 'Joe', colors: ['black', 'blue']
 
     User.acts_as_taggable_array_on :colors
   end
@@ -52,12 +52,22 @@ describe ActsAsTaggableArrayOn::Taggable do
     it "returns all of tag_name" do
       expect(User.all_colors).to match_array([@user1,@user2,@user3].map(&:colors).flatten.uniq)
     end
+
+    it "returns filtered tags for tag_name with block" do
+      expect(User.all_colors{where(name: ["Ken", "Joe"])}).to match_array([@user2,@user3].map(&:colors).flatten.uniq)
+    end
   end
 
   describe "#colors_cloud" do
     it "returns tag cloud for tag_name" do
       expect(User.colors_cloud).to match_array(
         [@user1,@user2,@user3].map(&:colors).flatten.group_by(&:to_s).map{|k,v| [k,v.count]}
+      )
+    end
+
+    it "returns filtered tag cloud for tag_name with block" do
+      expect(User.colors_cloud{where(name: ["Ken", "Joe"])}).to match_array(
+        [@user2,@user3].map(&:colors).flatten.group_by(&:to_s).map{|k,v| [k,v.count]}
       )
     end
   end
