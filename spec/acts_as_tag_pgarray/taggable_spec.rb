@@ -56,6 +56,14 @@ describe ActsAsTaggableArrayOn::Taggable do
     it "returns filtered tags for tag_name with block" do
       expect(User.all_colors{where(name: ["Ken", "Joe"])}).to match_array([@user2,@user3].map(&:colors).flatten.uniq)
     end
+
+    it "returns filtered tags for tag_name with prepended scope" do
+      expect(User.where('tag like ?', 'bl%').all_colors).to match_array([@user1,@user2,@user3].map(&:colors).flatten.uniq.select{|name| name.start_with? 'bl'})
+    end
+
+    it "returns filtered tags for tag_name with prepended scope and bock" do
+      expect(User.where('tag like ?', 'bl%').all_colors{where(name: ["Ken", "Joe"])}).to match_array([@user2,@user3].map(&:colors).flatten.uniq.select{|name| name.start_with? 'bl'})
+    end
   end
 
   describe "#colors_cloud" do
@@ -68,6 +76,18 @@ describe ActsAsTaggableArrayOn::Taggable do
     it "returns filtered tag cloud for tag_name with block" do
       expect(User.colors_cloud{where(name: ["Ken", "Joe"])}).to match_array(
         [@user2,@user3].map(&:colors).flatten.group_by(&:to_s).map{|k,v| [k,v.count]}
+      )
+    end
+
+    it "returns filtered tag cloud for tag_name with prepended scope" do
+      expect(User.where('tag like ?', 'bl%').colors_cloud).to match_array(
+        [@user1,@user2,@user3].map(&:colors).flatten.group_by(&:to_s).map{|k,v| [k,v.count]}.select{|name,count| name.start_with? 'bl'}
+      )
+    end
+
+    it "returns filtered tag cloud for tag_name with prepended scope and block" do
+      expect(User.where('tag like ?', 'bl%').colors_cloud{where(name: ["Ken", "Joe"])}).to match_array(
+        [@user2,@user3].map(&:colors).flatten.group_by(&:to_s).map{|k,v| [k,v.count]}.select{|name,count| name.start_with? 'bl'}
       )
     end
   end

@@ -15,17 +15,17 @@ module ActsAsTaggableArrayOn
 
         self.class.class_eval do
           define_method :"all_#{tag_name}" do |options = {}, &block|
-            query_scope = all
-            query_scope = query_scope.merge(instance_eval(&block)) if block
+            subquery_scope = unscoped.select("unnest(#{table_name}.#{tag_name}) as tag").uniq
+            subquery_scope = subquery_scope.instance_eval(&block) if block
 
-            query_scope.uniq.pluck("unnest(#{table_name}.#{tag_name})")
+            from(subquery_scope).pluck('tag')
           end
 
           define_method :"#{tag_name}_cloud" do |options = {}, &block|
-            query_scope = select("unnest(#{table_name}.#{tag_name}) as tag")
-            query_scope = query_scope.merge(instance_eval(&block)) if block
+            subquery_scope = unscoped.select("unnest(#{table_name}.#{tag_name}) as tag")
+            subquery_scope = subquery_scope.instance_eval(&block) if block
 
-            from(query_scope).group('tag').order('tag').pluck('tag, count(*)')
+            from(subquery_scope).group('tag').order('tag').pluck('tag, count(*) as count')
           end
         end
       end

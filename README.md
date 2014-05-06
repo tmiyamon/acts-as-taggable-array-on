@@ -122,6 +122,12 @@ Tag cloud calculation uses subquery internally. To add scopes to the query, use 
 User.tags_cloud { where name: ['ken', 'tom'] }
 ```
 
+To handle the result tags named 'tag' and 'count', prepend scopes.
+
+```ruby
+User.where('tag like ?', 'aws%').limit(10).order('count desc').tags_cloud { where name: ['ken', 'tom'] }
+```
+
 ### All Tags
 
 Can get all tags easily.
@@ -138,10 +144,15 @@ As the same to tag cloud calculation, you can use block to add scopes to the que
 User.all_tags { where name: ['ken', 'tom'] }
 ```
 
+To handle the result tags named 'tag', prepend scopes.
+
+```ruby
+User.where('tag like ?', 'aws%').all_tags { where name: ['ken', 'tom'] }
+```
 
 ## Contributing
 
-1. Fork it ( http://github.com/<my-github-username>/acts-as-taggable-array-on/fork )
+1. Fork it ( http://github.com/tmiyamon/acts-as-taggable-array-on/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
