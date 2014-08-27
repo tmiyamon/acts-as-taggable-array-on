@@ -27,7 +27,7 @@ To use it, you need to have an array column to act as taggable.
 class CreateUser < ActiveRecord::Migration
   def change
     create_table :users do |t|
-      t.text :tags, array: true, default: '{}'
+      t.string :tags, array: true, default: '{}'
       t.timestamps
     end
     add_index :users, :tags, using: 'gin'

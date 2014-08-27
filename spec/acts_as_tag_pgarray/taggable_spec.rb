@@ -37,13 +37,13 @@ describe ActsAsTaggableArrayOn::Taggable do
   end
   
   describe "#without_any_tags" do
-    it "returns users having any tags of args" do
+    it "returns users not having any tags of args" do
       expect(User.without_any_colors('red', 'blue')).to match_array([])
     end
   end
 
   describe "#without_all_tags" do
-    it "returns users having all tags of args" do
+    it "returns users not having all tags of args" do
       expect(User.without_all_colors('red', 'blue')).to match_array([@user2,@user3])
     end
   end
