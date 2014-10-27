@@ -7,11 +7,12 @@ module ActsAsTaggableArrayOn
     module ClassMethod
       def acts_as_taggable_array_on(*tag_def)
         tag_name = tag_def.first
+        parser = ActsAsTaggableArrayOn.parser
 
-        scope :"with_any_#{tag_name}", ->(* tags){where("#{tag_name} && ARRAY[?]::varchar[]", tags)}
-        scope :"with_all_#{tag_name}", ->(* tags){where("#{tag_name} @> ARRAY[?]::varchar[]", tags)}
-        scope :"without_any_#{tag_name}", ->(* tags){where.not("#{tag_name} && ARRAY[?]::varchar[]", tags)}
-        scope :"without_all_#{tag_name}", ->(* tags){where.not("#{tag_name} @> ARRAY[?]::varchar[]", tags)}
+        scope :"with_any_#{tag_name}", ->(tags){ where("#{tag_name} && ARRAY[?]::varchar[]", parser.parse(tags)) }
+        scope :"with_all_#{tag_name}", ->(tags){ where("#{tag_name} @> ARRAY[?]::varchar[]", parser.parse(tags)) }
+        scope :"without_any_#{tag_name}", ->(tags){ where.not("#{tag_name} && ARRAY[?]::varchar[]", parser.parse(tags)) }
+        scope :"without_all_#{tag_name}", ->(tags){ where.not("#{tag_name} @> ARRAY[?]::varchar[]", parser.parse(tags)) }
 
         self.class.class_eval do
           define_method :"all_#{tag_name}" do |options = {}, &block|

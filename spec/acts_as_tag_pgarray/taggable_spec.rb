@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe ActsAsTaggableArrayOn::Taggable do
-  before do 
+  before do
     @user1 = User.create name: 'Tom', colors: ['red', 'blue']
     @user2 = User.create name: 'Ken', colors: ['black', 'white', 'red']
     @user3 = User.create name: 'Joe', colors: ['black', 'blue']
@@ -26,25 +26,29 @@ describe ActsAsTaggableArrayOn::Taggable do
 
   describe "#with_any_tags" do
     it "returns users having any tags of args" do
-      expect(User.with_any_colors('red', 'blue')).to match_array([@user1,@user2,@user3])
+      expect(User.with_any_colors(['red', 'blue'])).to match_array([@user1,@user2,@user3])
+      expect(User.with_any_colors('red, blue')).to match_array([@user1,@user2,@user3])
     end
   end
 
   describe "#with_all_tags" do
     it "returns users having all tags of args" do
-      expect(User.with_all_colors('red', 'blue')).to match_array([@user1])
+      expect(User.with_all_colors(['red', 'blue'])).to match_array([@user1])
+      expect(User.with_all_colors('red, blue')).to match_array([@user1])
     end
   end
-  
+
   describe "#without_any_tags" do
     it "returns users not having any tags of args" do
-      expect(User.without_any_colors('red', 'blue')).to match_array([])
+      expect(User.without_any_colors(['red', 'blue'])).to match_array([])
+      expect(User.without_any_colors('red, blue')).to match_array([])
     end
   end
 
   describe "#without_all_tags" do
     it "returns users not having all tags of args" do
-      expect(User.without_all_colors('red', 'blue')).to match_array([@user2,@user3])
+      expect(User.without_all_colors(['red', 'blue'])).to match_array([@user2,@user3])
+      expect(User.without_all_colors('red, blue')).to match_array([@user2,@user3])
     end
   end
 
