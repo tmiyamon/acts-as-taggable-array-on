@@ -93,16 +93,20 @@ class User < ActiveRecord::Base
 end
 
 # Find a user with all of the tags
-User.with_all_tags("awesome")
+User.with_all_tags("awesome, slick")
+User.with_all_tags(["awesome", "slick"])
 
 # Find a user with any of the tags
-User.with_any_tags("awesome")
+User.with_any_tags("awesome, slick")
+User.with_any_tags(["awesome", "slick"])
 
 # Find a user without all of the tags
-User.without_all_tags("awesome")
+User.without_all_tags("awesome, slick")
+User.without_all_tags(["awesome", "slick"])
 
 # Find a user without any of the tags
-User.without_any_tags("awesome")
+User.without_any_tags("awesome, slick")
+User.without_any_tags(["awesome", "slick"])
 
 # Chain with the other scopes
 User.with_any_tags("awesome").without_any_tags("slick").by_join_date.paginate(:page => params[:page], :per_page => 20)
