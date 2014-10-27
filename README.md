@@ -1,7 +1,8 @@
 # ActsAsTaggableArrayOn
 [![Build Status](https://travis-ci.org/tmiyamon/acts-as-taggable-array-on.svg?branch=master)](https://travis-ci.org/tmiyamon/acts-as-taggable-array-on)
 
-A simple implementation for tagging sysytem with postgres array.
+A simple implementation for tagging system with postgres array.
+So, this gem works only on postgres.
 
 
 ## Installation
