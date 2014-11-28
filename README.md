@@ -155,6 +155,60 @@ To handle the result tags named 'tag', prepend scopes.
 User.where('tag like ?', 'aws%').all_tags { where name: ['ken', 'tom'] }
 ```
 
+## Benchmark
+Based on the [article](https://adamnengland.wordpress.com/2014/02/19/benchmarks-acts-as-taggable-on-vs-postgresql-arrays/), I built [simple benchmark app](https://github.com/tmiyamon/acts-as-taggable-benchmark/) to compare only the main features acts-as-taggable-array-on has.
+
+This result does NOT insist acts-as-taggable-array-on is better than acts-as-taggable-on since it provides much more features than this gem.
+In the case you need simple tag functionality, acts-as-taggable-array-on may be helpful to improve its performance.
+
+```bash
+% rake bench:write bench:find_by_id bench:find_by_tag
+Deleted all ActsAsTaggableOn::Tag
+Deleted all ActsAsTaggableOn::Tagging
+Deleted all TaggableUser
+Deleted all TaggableArrayUser
+Finsihed to clean
+
+
+###################################################################
+
+bench:write
+Rehearsal ---------------------------------------------------------
+Using Taggable          6.950000   0.420000   7.370000 (  9.223704)
+Using Postgres Arrays   0.710000   0.090000   0.800000 (  1.184734)
+------------------------------------------------ total: 8.170000sec
+
+                            user     system      total        real
+Using Taggable          5.800000   0.340000   6.140000 (  7.842051)
+Using Postgres Arrays   0.680000   0.090000   0.770000 (  1.117812)
+
+###################################################################
+
+bench:find_by_id
+Rehearsal ---------------------------------------------------------
+Using Taggable          1.490000   0.110000   1.600000 (  2.079776)
+Using Postgres Arrays   0.240000   0.030000   0.270000 (  0.419430)
+------------------------------------------------ total: 1.870000sec
+
+                            user     system      total        real
+Using Taggable          1.440000   0.100000   1.540000 (  2.023188)
+Using Postgres Arrays   0.250000   0.040000   0.290000 (  0.434233)
+
+###################################################################
+
+bench:find_by_tag
+Rehearsal ---------------------------------------------------------
+Using Taggable          0.600000   0.040000   0.640000 (  1.107227)
+Using Postgres Arrays   0.060000   0.000000   0.060000 (  0.060019)
+------------------------------------------------ total: 0.700000sec
+
+                            user     system      total        real
+Using Taggable          0.600000   0.040000   0.640000 (  1.100302)
+Using Postgres Arrays   0.030000   0.000000   0.030000 (  0.033001)
+rake bench:write bench:find_by_id bench:find_by_tag  20.29s user 1.52s system 77% cpu 28.322 total
+```
+
+
 ## Contributing
 
 1. Fork it ( http://github.com/tmiyamon/acts-as-taggable-array-on/fork )
