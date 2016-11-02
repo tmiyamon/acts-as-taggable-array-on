@@ -1,0 +1,7 @@
+source 'https://rubygems.org'
+
+# Specify your gem's dependencies in acts-as-pgarray-taggable-on.gemspec
+gemspec path: '../'
+
+gem 'activerecord',  '~> 5.0.0'
+gem 'activesupport', '~> 5.0.0'
