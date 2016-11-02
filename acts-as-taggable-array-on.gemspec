@@ -27,4 +27,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake"
   spec.add_development_dependency "rspec-rails"
   spec.add_development_dependency "guard-rspec"
+  spec.add_development_dependency "listen",  "~> 3.0.0"
 end
