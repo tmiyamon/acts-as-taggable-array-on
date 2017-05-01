@@ -19,7 +19,7 @@ RSpec.configure do |config|
       adapter: "postgresql", 
       encoding: 'unicode',
       database: "acts-as-taggable-array-on_test",
-      username: "postgres"
+      username: "acts-as-taggable-array-on"
     )
     create_database
   end
