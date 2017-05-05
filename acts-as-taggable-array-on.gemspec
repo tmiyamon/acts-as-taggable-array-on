@@ -6,7 +6,7 @@ require 'acts-as-taggable-array-on/version'
 Gem::Specification.new do |spec|
   spec.name          = "acts-as-taggable-array-on"
   spec.version       = ActsAsTagPgarray::VERSION
-  spec.authors       = ["Takuya Miyamoto"]
+  spec.authors       = ["Takuya Miyamoto, Jon Rogers, Linden Melvin"]
   spec.email         = ["miyamototakuya@gmail.com"]
   spec.summary       = %q{Simple tagging gem for Rails using postgres array.}
   spec.description   = %q{Simple tagging gem for Rails using postgres array.}
@@ -18,8 +18,8 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
 
-  spec.add_runtime_dependency 'activerecord',  ['>= 4', '< 5']
-  spec.add_runtime_dependency 'activesupport', ['>= 4', '< 5']
+  spec.add_runtime_dependency 'activerecord',  ['>= 4', '< 6']
+  spec.add_runtime_dependency 'activesupport', ['>= 4', '< 6']
 
   spec.add_development_dependency 'pg'
 

@@ -16,7 +16,7 @@ module ActsAsTaggableArrayOn
 
         self.class.class_eval do
           define_method :"all_#{tag_name}" do |options = {}, &block|
-            subquery_scope = unscoped.select("unnest(#{table_name}.#{tag_name}) as tag").uniq
+            subquery_scope = unscoped.select("distinct unnest(#{table_name}.#{tag_name}) as tag")
             subquery_scope = subquery_scope.instance_eval(&block) if block
 
             from(subquery_scope).pluck('tag')
