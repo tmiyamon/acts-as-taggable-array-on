@@ -16,7 +16,7 @@ class User < ActiveRecord::Base; end
 RSpec.configure do |config|
   config.before(:all) do
     ActiveRecord::Base.establish_connection(
-      adapter: "postgresql", 
+      adapter: "postgresql",
       encoding: 'unicode',
       database: "acts-as-taggable-array-on_test",
       username: "acts-as-taggable-array-on"
@@ -37,8 +37,8 @@ def create_database
   ActiveRecord::Schema.define(:version => 1) do
     create_table :users do |t|
       t.string :name
-      t.string :colors, array: true, defualt: '{}'
-      t.timestamps
+      t.string :colors, array: true, default: []
+      t.timestamps null: true
     end
   end
 end

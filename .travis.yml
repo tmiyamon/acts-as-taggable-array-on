@@ -2,15 +2,24 @@ language: ruby
 rvm:
   - 2.0.0
   - 2.1.1
-  - 2.1.2
+  - 2.2.2
+  - 2.3.0
 addons:
   postgresql: 9.3
 gemfile:
-  - gemfiles/rails_4.0.gemfile
-  - gemfiles/rails_4.1.gemfile
+  - gemfiles/rails_4.gemfile
+  - gemfiles/rails_5.gemfile
 before_script:
   - createuser -d acts-as-taggable-array-on -U postgres
   - createdb --username=acts-as-taggable-array-on acts-as-taggable-array-on_test
 script:
   - bundle
   - bundle exec rspec
+matrix:
+  exclude:
+    - rvm: 2.0.0
+      gemfile: gemfiles/rails_5.gemfile
+    - rvm: 2.1.1
+      gemfile: gemfiles/rails_5.gemfile
+    - rvm: 2.1.2
+      gemfile: gemfiles/rails_5.gemfile
