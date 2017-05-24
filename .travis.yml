@@ -1,6 +1,5 @@
 language: ruby
 rvm:
-  - 2.0.0
   - 2.1.1
   - 2.2.2
   - 2.3.0
@@ -17,8 +16,6 @@ script:
   - bundle exec rspec
 matrix:
   exclude:
-    - rvm: 2.0.0
-      gemfile: gemfiles/rails_5.gemfile
     - rvm: 2.1.1
       gemfile: gemfiles/rails_5.gemfile
     - rvm: 2.1.2
