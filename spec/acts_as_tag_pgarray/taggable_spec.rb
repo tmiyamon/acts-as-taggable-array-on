@@ -2,11 +2,12 @@ require 'spec_helper'
 
 describe ActsAsTaggableArrayOn::Taggable do
   before do
-    @user1 = User.create name: 'Tom', colors: ['red', 'blue']
-    @user2 = User.create name: 'Ken', colors: ['black', 'white', 'red']
-    @user3 = User.create name: 'Joe', colors: ['black', 'blue']
+    @user1 = User.create name: 'Tom', colors: ['red', 'blue'], sizes: ['medium', 'large']
+    @user2 = User.create name: 'Ken', colors: ['black', 'white', 'red'], sizes: ['small', 'large']
+    @user3 = User.create name: 'Joe', colors: ['black', 'blue'], sizes: ['small', 'medium', 'large']
 
     User.acts_as_taggable_array_on :colors
+    User.acts_as_taggable_array_on :sizes
   end
 
   describe "#acts_as_taggable_array_on" do
@@ -22,6 +23,13 @@ describe ActsAsTaggableArrayOn::Taggable do
     it "defines named scope not to match all tags" do
       expect(User).to respond_to(:without_all_colors)
     end
+  end
+
+  it "should work with ::text typed array" do
+    expect(User.with_any_sizes(['small'])).to match_array([@user2,@user3])
+    expect(User.with_all_sizes(['small', 'large'])).to match_array([@user2,@user3])
+    expect(User.without_any_sizes('medium')).to match_array([@user2])
+    expect(User.without_all_sizes('medium')).to match_array([@user2])
   end
 
   describe "#with_any_tags" do
