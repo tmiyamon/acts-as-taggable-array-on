@@ -1,20 +1,23 @@
+# frozen_string_literal: true
+
 module ActsAsTaggableArrayOn
   module Taggable
     def self.included(base)
       base.extend(ClassMethod)
     end
 
-    TYPE_MATCHER = { string: 'varchar', text: 'text' }.freeze
+    TYPE_MATCHER = { string: 'varchar', text: 'text' }
 
     module ClassMethod
       def acts_as_taggable_array_on(*tag_def)
         tag_name = tag_def.first
+        tag_array_type = TYPE_MATCHER[columns_hash[tag_name.to_s].type]
         parser = ActsAsTaggableArrayOn.parser
 
-        scope :"with_any_#{tag_name}", ->(tags){ where("#{tag_name} && ARRAY[?]::#{column_type(tag_name)}[]", parser.parse(tags)) }
-        scope :"with_all_#{tag_name}", ->(tags){ where("#{tag_name} @> ARRAY[?]::#{column_type(tag_name)}[]", parser.parse(tags)) }
-        scope :"without_any_#{tag_name}", ->(tags){ where.not("#{tag_name} && ARRAY[?]::#{column_type(tag_name)}[]", parser.parse(tags)) }
-        scope :"without_all_#{tag_name}", ->(tags){ where.not("#{tag_name} @> ARRAY[?]::#{column_type(tag_name)}[]", parser.parse(tags)) }
+        scope :"with_any_#{tag_name}", ->(tags){ where("#{tag_name} && ARRAY[?]::#{tag_array_type}[]", parser.parse(tags)) }
+        scope :"with_all_#{tag_name}", ->(tags){ where("#{tag_name} @> ARRAY[?]::#{tag_array_type}[]", parser.parse(tags)) }
+        scope :"without_any_#{tag_name}", ->(tags){ where.not("#{tag_name} && ARRAY[?]::#{tag_array_type}[]", parser.parse(tags)) }
+        scope :"without_all_#{tag_name}", ->(tags){ where.not("#{tag_name} @> ARRAY[?]::#{tag_array_type}[]", parser.parse(tags)) }
 
         self.class.class_eval do
           define_method :"all_#{tag_name}" do |options = {}, &block|
@@ -31,10 +34,6 @@ module ActsAsTaggableArrayOn
             from(subquery_scope).group('tag').order('tag').pluck('tag, count(*) as count')
           end
         end
-      end
-
-      def column_type(column_name)
-        TYPE_MATCHER[columns_hash[column_name.to_s].type]
       end
     end
   end
