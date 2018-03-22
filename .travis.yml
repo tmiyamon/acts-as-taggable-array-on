@@ -1,8 +1,11 @@
 language: ruby
 rvm:
-  - 2.1.1
-  - 2.2.2
-  - 2.3.0
+  - 2.1.10
+  - 2.2.9
+  - 2.3.6
+  - 2.4.3
+  - 2.4.3
+  - 2.5.0
 addons:
   postgresql: 9.3
 gemfile:
@@ -16,7 +19,5 @@ script:
   - bundle exec rspec
 matrix:
   exclude:
-    - rvm: 2.1.1
-      gemfile: gemfiles/rails_5.gemfile
-    - rvm: 2.1.2
+    - rvm: 2.1.10
       gemfile: gemfiles/rails_5.gemfile
