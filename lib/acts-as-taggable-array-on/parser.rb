@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module ActsAsTaggableArrayOn
   class Parser
     def parse tags
