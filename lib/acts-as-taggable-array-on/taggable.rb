@@ -6,7 +6,7 @@ module ActsAsTaggableArrayOn
       base.extend(ClassMethod)
     end
 
-    TYPE_MATCHER = { string: 'varchar', text: 'text' }
+    TYPE_MATCHER = { string: 'varchar', text: 'text', integer: 'integer' }
 
     module ClassMethod
       def acts_as_taggable_array_on(*tag_def)

@@ -2,12 +2,13 @@ require 'spec_helper'
 
 describe ActsAsTaggableArrayOn::Taggable do
   before do
-    @user1 = User.create name: 'Tom', colors: ['red', 'blue'], sizes: ['medium', 'large']
-    @user2 = User.create name: 'Ken', colors: ['black', 'white', 'red'], sizes: ['small', 'large']
-    @user3 = User.create name: 'Joe', colors: ['black', 'blue'], sizes: ['small', 'medium', 'large']
+    @user1 = User.create name: 'Tom', colors: ['red', 'blue'], sizes: ['medium', 'large'], codes: [456, 789]
+    @user2 = User.create name: 'Ken', colors: ['black', 'white', 'red'], sizes: ['small', 'large'], codes: [123, 789]
+    @user3 = User.create name: 'Joe', colors: ['black', 'blue'], sizes: ['small', 'medium', 'large'], codes: [123, 456, 789]
 
     User.acts_as_taggable_array_on :colors
     User.acts_as_taggable_array_on :sizes
+    User.acts_as_taggable_array_on :codes
   end
 
   describe "#acts_as_taggable_array_on" do
@@ -30,6 +31,13 @@ describe ActsAsTaggableArrayOn::Taggable do
     expect(User.with_all_sizes(['small', 'large'])).to match_array([@user2,@user3])
     expect(User.without_any_sizes('medium')).to match_array([@user2])
     expect(User.without_all_sizes('medium')).to match_array([@user2])
+  end
+
+  it "should work with ::integer typed array" do
+    expect(User.with_any_codes([123])).to match_array([@user2,@user3])
+    expect(User.with_all_codes([123, 789])).to match_array([@user2,@user3])
+    expect(User.without_any_codes(456)).to match_array([@user2])
+    expect(User.without_all_codes(456)).to match_array([@user2])
   end
 
   describe "#with_any_tags" do
