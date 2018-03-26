@@ -39,6 +39,7 @@ def create_database
       t.string :name
       t.string :colors, array: true, default: []
       t.text :sizes, array:true, default: []
+      t.integer :codes, array: true, default: []
       t.timestamps null: true
     end
   end
