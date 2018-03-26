@@ -53,6 +53,14 @@ end
 
 acts_as_taggable_array_on defines 4 scope and 2 class methods as below.
 
+### types
+
+currently, these types supported
+
+- varchar[]
+- text[]
+- integer[]
+
 ### scopes
 
 - with_any_#{tag_name}
