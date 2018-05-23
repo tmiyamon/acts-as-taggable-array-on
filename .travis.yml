@@ -12,8 +12,7 @@ gemfile:
   - gemfiles/rails_4.gemfile
   - gemfiles/rails_5.gemfile
 before_script:
-  - createuser -d acts-as-taggable-array-on -U postgres
-  - createdb --username=acts-as-taggable-array-on acts-as-taggable-array-on_test
+  - bundle exec rake db:create
 script:
   - bundle
   - bundle exec rspec
