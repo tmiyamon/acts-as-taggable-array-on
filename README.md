@@ -216,6 +216,9 @@ Using Postgres Arrays   0.030000   0.000000   0.030000 (  0.033001)
 rake bench:write bench:find_by_id bench:find_by_tag  20.29s user 1.52s system 77% cpu 28.322 total
 ```
 
+## Development
+To run testsuite you'll need to setup local PG database/user with `rake db:create`
+After that just running `rspec` should work.
 
 ## Contributing
 
