@@ -14,10 +14,10 @@ module ActsAsTaggableArrayOn
         tag_array_type = TYPE_MATCHER[columns_hash[tag_name.to_s].type]
         parser = ActsAsTaggableArrayOn.parser
 
-        scope :"with_any_#{tag_name}", ->(tags){ where("#{tag_name} && ARRAY[?]::#{tag_array_type}[]", parser.parse(tags)) }
-        scope :"with_all_#{tag_name}", ->(tags){ where("#{tag_name} @> ARRAY[?]::#{tag_array_type}[]", parser.parse(tags)) }
-        scope :"without_any_#{tag_name}", ->(tags){ where.not("#{tag_name} && ARRAY[?]::#{tag_array_type}[]", parser.parse(tags)) }
-        scope :"without_all_#{tag_name}", ->(tags){ where.not("#{tag_name} @> ARRAY[?]::#{tag_array_type}[]", parser.parse(tags)) }
+        scope :"with_any_#{tag_name}", ->(tags){ where("#{table_name}.#{tag_name} && ARRAY[?]::#{tag_array_type}[]", parser.parse(tags)) }
+        scope :"with_all_#{tag_name}", ->(tags){ where("#{table_name}.#{tag_name} @> ARRAY[?]::#{tag_array_type}[]", parser.parse(tags)) }
+        scope :"without_any_#{tag_name}", ->(tags){ where.not("#{table_name}.#{tag_name} && ARRAY[?]::#{tag_array_type}[]", parser.parse(tags)) }
+        scope :"without_all_#{tag_name}", ->(tags){ where.not("#{table_name}.#{tag_name} @> ARRAY[?]::#{tag_array_type}[]", parser.parse(tags)) }
 
         self.class.class_eval do
           define_method :"all_#{tag_name}" do |options = {}, &block|

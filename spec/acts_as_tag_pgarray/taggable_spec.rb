@@ -26,6 +26,20 @@ describe ActsAsTaggableArrayOn::Taggable do
     end
   end
 
+  it 'should define table name un-ambiguously' do
+    sql = User.with_any_sizes(['small']).to_sql
+    expect(sql).to eql("SELECT \"users\".* FROM \"users\" WHERE (users.sizes && ARRAY['small']::text[])")
+
+    sql = User.with_all_sizes(['small']).to_sql
+    expect(sql).to eql("SELECT \"users\".* FROM \"users\" WHERE (users.sizes @> ARRAY['small']::text[])")
+
+    sql = User.without_any_sizes(['small']).to_sql
+    expect(sql).to eql("SELECT \"users\".* FROM \"users\" WHERE (NOT (users.sizes && ARRAY['small']::text[]))")
+
+    sql = User.without_all_sizes(['small']).to_sql
+    expect(sql).to eql("SELECT \"users\".* FROM \"users\" WHERE (NOT (users.sizes @> ARRAY['small']::text[]))")
+  end
+
   it "should work with ::text typed array" do
     expect(User.with_any_sizes(['small'])).to match_array([@user2,@user3])
     expect(User.with_all_sizes(['small', 'large'])).to match_array([@user2,@user3])
