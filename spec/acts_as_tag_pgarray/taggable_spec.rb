@@ -11,6 +11,18 @@ describe ActsAsTaggableArrayOn::Taggable do
     User.acts_as_taggable_array_on :codes
   end
 
+
+  context "without database table" do
+    it "doesn't fail on class method call" do
+      Temping.create :dummy
+
+      class Dummy < ActiveRecord::Base; end
+      Dummy.acts_as_taggable_array_on :tags
+
+      Temping.teardown
+    end
+  end
+
   describe "#acts_as_taggable_array_on" do
     it "defines named scope to match any tags" do
       expect(User).to respond_to(:with_any_colors)
