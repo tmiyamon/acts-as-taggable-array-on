@@ -41,6 +41,7 @@ def create_database
       t.string :colors, array: true, default: []
       t.text :sizes, array:true, default: []
       t.integer :codes, array: true, default: []
+      t.string :hair_type, array: true, default: []
       t.timestamps null: true
     end
   end

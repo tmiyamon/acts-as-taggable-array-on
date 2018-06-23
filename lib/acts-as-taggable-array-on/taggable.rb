@@ -18,6 +18,8 @@ module ActsAsTaggableArrayOn
         scope :"with_all_#{tag_name}", ->(tags){ where("#{table_name}.#{tag_name} @> ARRAY[?]::#{tag_array_type}[]", parser.parse(tags)) }
         scope :"without_any_#{tag_name}", ->(tags){ where.not("#{table_name}.#{tag_name} && ARRAY[?]::#{tag_array_type}[]", parser.parse(tags)) }
         scope :"without_all_#{tag_name}", ->(tags){ where.not("#{table_name}.#{tag_name} @> ARRAY[?]::#{tag_array_type}[]", parser.parse(tags)) }
+        scope :"with_#{tag_name}_like", ->(pattern){ subquery = unscoped.select("id, unnest(#{table_name}.#{tag_name}) AS subquery_tag"); where(:id => select('id').from(subquery).where('subquery_tag ~* ?', pattern)) }
+        scope :"with_#{tag_name}_prefix", ->(prefix){ subquery = unscoped.select("id, unnest(#{table_name}.#{tag_name}) AS subquery_tag"); where(:id => select('id').from(subquery).where("? ~* ('^' || subquery_tag)", prefix)) }
 
         self.class.class_eval do
           define_method :"all_#{tag_name}" do |options = {}, &block|

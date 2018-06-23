@@ -2,13 +2,14 @@ require 'spec_helper'
 
 describe ActsAsTaggableArrayOn::Taggable do
   before do
-    @user1 = User.create name: 'Tom', colors: ['red', 'blue'], sizes: ['medium', 'large'], codes: [456, 789]
-    @user2 = User.create name: 'Ken', colors: ['black', 'white', 'red'], sizes: ['small', 'large'], codes: [123, 789]
-    @user3 = User.create name: 'Joe', colors: ['black', 'blue'], sizes: ['small', 'medium', 'large'], codes: [123, 456, 789]
+    @user1 = User.create name: 'Tom', colors: ['red', 'blue'], sizes: ['medium', 'large'], codes: [456, 789], hair_type: ['bald']
+    @user2 = User.create name: 'Ken', colors: ['black', 'white', 'red'], sizes: ['small', 'large'], codes: [123, 789], hair_type: ['hair_black', 'long']
+    @user3 = User.create name: 'Joe', colors: ['black', 'blue'], sizes: ['small', 'medium', 'large'], codes: [123, 456, 789], hair_type: ['hair_blonde', 'longer']
 
     User.acts_as_taggable_array_on :colors
     User.acts_as_taggable_array_on :sizes
     User.acts_as_taggable_array_on :codes
+    User.acts_as_taggable_array_on :hair_type
   end
 
 
@@ -46,10 +47,10 @@ describe ActsAsTaggableArrayOn::Taggable do
     expect(sql).to eql("SELECT \"users\".* FROM \"users\" WHERE (users.sizes @> ARRAY['small']::text[])")
 
     sql = User.without_any_sizes(['small']).to_sql
-    expect(sql).to eql("SELECT \"users\".* FROM \"users\" WHERE (NOT (users.sizes && ARRAY['small']::text[]))")
+    expect(sql).to eql("SELECT \"users\".* FROM \"users\" WHERE NOT (users.sizes && ARRAY['small']::text[])")
 
     sql = User.without_all_sizes(['small']).to_sql
-    expect(sql).to eql("SELECT \"users\".* FROM \"users\" WHERE (NOT (users.sizes @> ARRAY['small']::text[]))")
+    expect(sql).to eql("SELECT \"users\".* FROM \"users\" WHERE NOT (users.sizes @> ARRAY['small']::text[])")
   end
 
   it "should work with ::text typed array" do
@@ -91,6 +92,19 @@ describe ActsAsTaggableArrayOn::Taggable do
     it "returns users not having all tags of args" do
       expect(User.without_all_colors(['red', 'blue'])).to match_array([@user2,@user3])
       expect(User.without_all_colors('red, blue')).to match_array([@user2,@user3])
+    end
+  end
+
+  describe "#with_tag_like" do
+    it "returns users having tags matching regular expression arg" do
+      expect(User.with_hair_type_like('^hair')).to match_array([@user2,@user3])
+      expect(User.with_hair_type_like('(hair_black|bald)')).to match_array([@user1,@user2])
+    end
+  end
+
+  describe "#with_tag_prefix" do
+    it "returns users having tags matching prefix arg" do
+      expect(User.with_hair_type_prefix('longer')).to match_array([@user2,@user3])
     end
   end
 

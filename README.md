@@ -67,6 +67,8 @@ currently, these types supported
 - with_all_#{tag_name}
 - without_any_#{tag_name}
 - without_all_#{tag_name}
+- with_#{tag_name}_like
+- with_#{tag_name}_prefix
 
 ### class methods
 
@@ -115,6 +117,12 @@ User.without_all_tags(["awesome", "slick"])
 # Find a user without any of the tags
 User.without_any_tags("awesome, slick")
 User.without_any_tags(["awesome", "slick"])
+
+# Find users with tags that match a regular expression
+User.with_tags_like('^awe')
+
+# Find users with tags that match a value where the tag is treated as a prefix
+User.with_tags_prefix('awesomeness')
 
 # Chain with the other scopes
 User.with_any_tags("awesome").without_any_tags("slick").by_join_date.paginate(:page => params[:page], :per_page => 20)
