@@ -14,8 +14,6 @@ describe ActsAsTaggableArrayOn::Taggable do
 
   context "without database table" do
     it "doesn't fail on class method call" do
-      Temping.create :dummy
-
       class Dummy < ActiveRecord::Base; end
       Dummy.acts_as_taggable_array_on :tags
 
