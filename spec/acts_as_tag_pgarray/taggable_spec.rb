@@ -16,8 +16,6 @@ describe ActsAsTaggableArrayOn::Taggable do
     it "doesn't fail on class method call" do
       class Dummy < ActiveRecord::Base; end
       Dummy.acts_as_taggable_array_on :tags
-
-      Temping.teardown
     end
   end
 
