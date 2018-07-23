@@ -11,6 +11,7 @@ addons:
 gemfile:
   - gemfiles/rails_4.gemfile
   - gemfiles/rails_5.gemfile
+  - gemfiles/rails_6.gemfile
 before_script:
   - bundle exec rake db:create
 script:
