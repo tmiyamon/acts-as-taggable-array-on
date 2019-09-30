@@ -34,6 +34,7 @@ module ActsAsTaggableArrayOn
           end
         end
       end
+      alias taggable_array acts_as_taggable_array_on
     end
   end
 end
