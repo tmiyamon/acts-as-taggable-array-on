@@ -30,7 +30,7 @@ module ActsAsTaggableArrayOn
             subquery_scope = unscoped.select("unnest(#{table_name}.#{tag_name}) as tag")
             subquery_scope = subquery_scope.instance_eval(&block) if block
 
-            from(subquery_scope).group('tag').order('tag').pluck('tag, count(*) as count')
+            from(subquery_scope).group('tag').order('tag').pluck(Arel.sql('tag, count(*) as count'))
           end
         end
       end
