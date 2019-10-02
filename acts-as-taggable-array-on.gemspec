@@ -18,14 +18,14 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
 
-  spec.add_runtime_dependency 'activerecord',  ['>= 4']
-  spec.add_runtime_dependency 'activesupport', ['>= 4']
+  spec.add_runtime_dependency 'activerecord',  ['>= 5.2']
+  spec.add_runtime_dependency 'activesupport', ['>= 5.2']
 
-  spec.add_development_dependency 'pg', '~> 0.18'
+  spec.add_development_dependency 'pg', '~> 1.1'
 
-  spec.add_development_dependency "bundler", "~> 1.5"
+  spec.add_development_dependency "bundler"
   spec.add_development_dependency "rake"
   spec.add_development_dependency "rspec-rails"
   spec.add_development_dependency "guard-rspec"
-  spec.add_development_dependency "listen",  "~> 3.0.0"
+  spec.add_development_dependency "listen", "> 3.0"
 end
