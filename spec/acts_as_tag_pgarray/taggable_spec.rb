@@ -57,18 +57,10 @@ describe ActsAsTaggableArrayOn::Taggable do
     expect(sql).to eql("SELECT \"users\".* FROM \"users\" WHERE (users.sizes @> ARRAY['small']::text[])")
 
     sql = User.without_any_sizes(['small']).to_sql
-    if ActiveRecord.version.to_s < "5.2.0"
-      expect(sql).to eql("SELECT \"users\".* FROM \"users\" WHERE (NOT (users.sizes && ARRAY['small']::text[]))")
-    else
-      expect(sql).to eql("SELECT \"users\".* FROM \"users\" WHERE NOT (users.sizes && ARRAY['small']::text[])")
-    end
+    expect(sql).to eql("SELECT \"users\".* FROM \"users\" WHERE NOT (users.sizes && ARRAY['small']::text[])")
 
     sql = User.without_all_sizes(['small']).to_sql
-    if ActiveRecord.version.to_s < "5.2.0"
-      expect(sql).to eql("SELECT \"users\".* FROM \"users\" WHERE (NOT (users.sizes @> ARRAY['small']::text[]))")
-    else
-      expect(sql).to eql("SELECT \"users\".* FROM \"users\" WHERE NOT (users.sizes @> ARRAY['small']::text[])")
-    end
+    expect(sql).to eql("SELECT \"users\".* FROM \"users\" WHERE NOT (users.sizes @> ARRAY['small']::text[])")
   end
 
   it "should work with ::text typed array" do

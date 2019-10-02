@@ -1,16 +1,11 @@
 language: ruby
 rvm:
-  - 2.1.10
-  - 2.2.10
-  - 2.3.8
-  - 2.4.7
-  - 2.5.6
-  - 2.6.4
+  - 2.4.8
+  - 2.5.7
+  - 2.6.5
 services:
   - postgresql
 gemfile:
-  - gemfiles/rails_4.gemfile
-  - gemfiles/rails_5.gemfile
   - gemfiles/rails_5_2.gemfile
   - gemfiles/rails_6_0.gemfile
 before_script:
@@ -21,17 +16,5 @@ script:
   - bundle exec rspec
 matrix:
   exclude:
-    - rvm: 2.1.10
-      gemfile: gemfiles/rails_5.gemfile
-    - rvm: 2.1.10
-      gemfile: gemfiles/rails_5_2.gemfile
-    - rvm: 2.1.10
-      gemfile: gemfiles/rails_6_0.gemfile
-    - rvm: 2.2.10
-      gemfile: gemfiles/rails_5_2.gemfile
-    - rvm: 2.2.10
-      gemfile: gemfiles/rails_6_0.gemfile
-    - rvm: 2.3.8
-      gemfile: gemfiles/rails_6_0.gemfile
-    - rvm: 2.4.7
+    - rvm: 2.4.8
       gemfile: gemfiles/rails_6_0.gemfile
