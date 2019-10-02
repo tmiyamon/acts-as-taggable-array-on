@@ -8,7 +8,7 @@ describe ActsAsTaggableArrayOn::Taggable do
 
     User.acts_as_taggable_array_on :colors
     User.acts_as_taggable_array_on :sizes
-    User.acts_as_taggable_array_on :codes
+    User.taggable_array :codes
   end
 
 
@@ -31,6 +31,21 @@ describe ActsAsTaggableArrayOn::Taggable do
     end
     it "defines named scope not to match all tags" do
       expect(User).to respond_to(:without_all_colors)
+    end
+  end
+
+  describe "#taggable_array_on" do
+    it "defines named scope to match any tags" do
+      expect(User).to respond_to(:with_any_codes)
+    end
+    it "defines named scope to match all tags" do
+      expect(User).to respond_to(:with_all_codes)
+    end
+    it "defines named scope not to match any tags" do
+      expect(User).to respond_to(:without_any_codes)
+    end
+    it "defines named scope not to match all tags" do
+      expect(User).to respond_to(:without_all_codes)
     end
   end
 

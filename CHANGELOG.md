@@ -1,3 +1,6 @@
+## HEAD
+- Alias `acts_as_taggable_on` to `taggable_array`
+
 ## 0.5.1
 - Don't fail during load time if DB is missing
 
