@@ -1,8 +1,7 @@
 # ActsAsTaggableArrayOn
 [![Build Status](https://travis-ci.org/tmiyamon/acts-as-taggable-array-on.svg?branch=master)](https://travis-ci.org/tmiyamon/acts-as-taggable-array-on)
 
-A simple implementation for tagging system with postgres array.
-So, this gem works only on postgres.
+A simple implementation for tagging system with postgres array. Please note, only PostgreSql database is supported.
 
 
 ## Installation
@@ -46,7 +45,7 @@ then
 
 ```ruby
 class User < ActiveRecord::Base
-  acts_as_taggable_array_on :tags
+  taggable_array :tags
 end
 @user = User.new(:name => "Bobby")
 ```
@@ -96,7 +95,7 @@ Set, add and remove
 
 ```ruby
 class User < ActiveRecord::Base
-  acts_as_taggable_array_on :tags
+  taggable_array :tags
   scope :by_join_date, ->{order("created_at DESC")}
 end
 
