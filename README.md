@@ -1,7 +1,7 @@
 # ActsAsTaggableArrayOn
 [![Build Status](https://travis-ci.org/tmiyamon/acts-as-taggable-array-on.svg?branch=master)](https://travis-ci.org/tmiyamon/acts-as-taggable-array-on)
 
-A simple implementation for tagging system with postgres array. Please note, only PostgreSql database is supported.
+A simple implementation for tagging system with postgres array. Please note, only PostgreSQL database is supported.
 
 
 ## Installation
@@ -9,7 +9,7 @@ A simple implementation for tagging system with postgres array. Please note, onl
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'acts-as-taggable-array-on'
+gem "acts-as-taggable-array-on"
 ```
 
 And then execute:
@@ -27,10 +27,10 @@ To use it, you need to have an array column to act as taggable.
 class CreateUser < ActiveRecord::Migration
   def change
     create_table :users do |t|
-      t.string :tags, array: true, default: '{}'
+      t.string :tags, array: true, default: []
       t.timestamps
     end
-    add_index :users, :tags, using: 'gin'
+    add_index :users, :tags, using: "gin"
   end
 end
 ```
@@ -47,125 +47,132 @@ then
 class User < ActiveRecord::Base
   taggable_array :tags
 end
-@user = User.new(:name => "Bobby")
 ```
-
-acts_as_taggable_array_on defines 4 scope and 2 class methods as below.
 
 ### types
 
 currently, these types supported
 
-- varchar[]
-- text[]
-- integer[]
-
-### scopes
-
-- with_any_#{tag_name}
-- with_all_#{tag_name}
-- without_any_#{tag_name}
-- without_all_#{tag_name}
-
-### class methods
-
-- all_#{tag_name}
-- #{tag_name}_cloud
-
+- `varchar[]`
+  - `t.string :tags, array: true, default: []`
+  - `add_column :users, :tags, :string, array: true, default: []`
+- `text[]`
+  - `t.text :tags, array: true, default: []`
+  - `add_column :users, :tags, :text, array: true, default: []`
+- `integer[]`
+  - `t.integer :tags, array: true, default: []`
+  - `add_column :users, :tags, :integer, array: true, default: []`
 
 ## Usage
 
-Set, add and remove
+Use PostgreSQL array normally to set/add/remove tags:
 
 ```ruby
 #set
-@user.tags = ["awesome", "slick"]
-@user.tags = '{awesome,slick}'
+user.tags = ["awesome", "slick"]
+user.tags = "{awesome,slick}"
 
 #add
-@user.tags += ["awesome"]
-@user.tags += ["awesome", "slick"]
+user.tags += ["awesome"]
+user.tags += ["awesome", "slick"]
+user.tags << "awesome"
 
 #remove
-@user.tags -= ["awesome"]
-@user.tags -= ["awesome", "slick"]
+user.tags -= ["awesome"]
+user.tags -= ["awesome", "slick"]
 ```
 
-### Finding Tagged Objects
+ActsAsTaggableArrayOn defines 4 scope methods and 2 class methods as shown below.
+
+### Scopes
+
+#### `with_any_#{tag_name}`
 
 ```ruby
-class User < ActiveRecord::Base
-  taggable_array :tags
-  scope :by_join_date, ->{order("created_at DESC")}
-end
-
-# Find a user with all of the tags
-User.with_all_tags("awesome, slick")
-User.with_all_tags(["awesome", "slick"])
-
 # Find a user with any of the tags
 User.with_any_tags("awesome, slick")
 User.with_any_tags(["awesome", "slick"])
+```
 
-# Find a user without all of the tags
-User.without_all_tags("awesome, slick")
-User.without_all_tags(["awesome", "slick"])
+#### `with_all_#{tag_name}`
 
+```ruby
+# Find a user with all of the tags
+User.with_all_tags("awesome, slick")
+User.with_all_tags(["awesome", "slick"])
+```
+
+#### `without_any_#{tag_name}`
+
+```ruby
 # Find a user without any of the tags
 User.without_any_tags("awesome, slick")
 User.without_any_tags(["awesome", "slick"])
-
-# Chain with the other scopes
-User.with_any_tags("awesome").without_any_tags("slick").by_join_date.paginate(:page => params[:page], :per_page => 20)
 ```
 
-### Tag cloud calculations
-
-Calculation to count for each tags is supported. Currently, it does not care its order.
+#### `without_all_#{tag_name}`
 
 ```ruby
-User.tags_cloud
-# [['awesome' => 1], ['slick' => 2]]
+# Find a user without all of the tags
+User.without_all_tags("awesome, slick")
+User.without_all_tags(["awesome", "slick"])
 ```
 
-Tag cloud calculation uses subquery internally. To add scopes to the query, use block.
 
-```ruby
-User.tags_cloud { where name: ['ken', 'tom'] }
-```
+### Class methods
 
-To handle the result tags named 'tag' and 'count', prepend scopes.
-
-```ruby
-User.where('tag like ?', 'aws%').limit(10).order('count desc').tags_cloud { where name: ['ken', 'tom'] }
-```
-
-### All Tags
-
-Can get all tags easily.
+#### `all_#{tag_name}`
 
 ```ruby
 User.all_tags
-# ['awesome', 'slick']
+# ["awesome", "slick"]
 ```
 
-As the same to tag cloud calculation, you can use block to add scopes to the query.
-
+You can use block to add scopes to the query.
 
 ```ruby
-User.all_tags { where name: ['ken', 'tom'] }
+User.all_tags { where(name: ["ken", "tom"]) }
 ```
 
-To handle the result tags named 'tag', prepend scopes.
+Or simply use your existing scopes:
 
 ```ruby
-User.where('tag like ?', 'aws%').all_tags { where name: ['ken', 'tom'] }
+# scope :by_join_date, ->{order("created_at DESC")}
+User.all_tags.by_join_date
 ```
+
+SQL field is named "tag" and you can use it to modify the query.
+
+```ruby
+User.where("tag like ?", "aws%").all_tags { where(name: ["ken", "tom"]) }
+```
+
+#### `#{tag_name}_cloud`
+
+Calculates the number of occurrences of each tag.
+
+```ruby
+User.tags_cloud
+# [["slick" => 2], ["awesome" => 1]]
+```
+
+You can use block to add scopes to the query.
+
+```ruby
+User.tags_cloud { where(name: ["ken", "tom"]) }
+```
+
+SQL fields are named "tag" and "count" and you can use them to modify the query.
+
+```ruby
+User.where("tag like ?", "aws%").limit(10).order("count desc").tags_cloud { where(name: ["ken", "tom"]) }
+```
+
 
 ## Benchmark
-Based on the [article](https://adamnengland.wordpress.com/2014/02/19/benchmarks-acts-as-taggable-on-vs-postgresql-arrays/), I built [simple benchmark app](https://github.com/tmiyamon/acts-as-taggable-benchmark/) to compare only the main features acts-as-taggable-array-on has.
+Based on the [article](https://adamnengland.wordpress.com/2014/02/19/benchmarks-acts-as-taggable-on-vs-postgresql-arrays/), I built [simple benchmark app](https://github.com/tmiyamon/acts-as-taggable-benchmark/) to compare only the main features ActsAsTaggableArrayOn has.
 
-This result does NOT insist acts-as-taggable-array-on is better than acts-as-taggable-on since it provides much more features than this gem.
+This result does NOT insist ActsAsTaggableArrayOn is better than acts-as-taggable-on since it provides much more features than this gem.
 In the case you need simple tag functionality, acts-as-taggable-array-on may be helpful to improve its performance.
 
 ```bash
@@ -216,6 +223,7 @@ rake bench:write bench:find_by_id bench:find_by_tag  20.29s user 1.52s system 77
 ```
 
 ## Development
+
 To run testsuite you'll need to setup local PG database/user with `rake db:create`
 After that just running `rspec` should work.
 
