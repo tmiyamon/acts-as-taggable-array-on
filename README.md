@@ -222,8 +222,9 @@ rake bench:write bench:find_by_id bench:find_by_tag  20.29s user 1.52s system 77
 
 ## Development
 
-To run testsuite you'll need to setup local PG database/user with `rake db:create`
+- To run testsuite you'll need to setup local PG database/user with `rake db:create`
 After that just running `rspec` should work.
+- Before submitting code for a review, please be sure to run `bundle exec standardrb --fix`
 
 ## Contributing
 
