@@ -1,8 +1,7 @@
 # ActsAsTaggableArrayOn
 [![Build Status](https://travis-ci.org/tmiyamon/acts-as-taggable-array-on.svg?branch=master)](https://travis-ci.org/tmiyamon/acts-as-taggable-array-on)
 
-A simple implementation for tagging system with postgres array. Only PostgreSQL is supported.
-
+A simple implementation for tagging system based on a database array type. Only PostgreSQL Arrays are currently supported.
 
 ## Installation
 
