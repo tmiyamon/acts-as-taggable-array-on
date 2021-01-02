@@ -2,17 +2,20 @@ name: "Code review"
 
 on:
   - pull_request
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    
-    - name: StandardRB Linter
-      uses: andrewmcodes/standardrb-action@v0.0.2
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
+      - uses: actions/checkout@v2
 
-    - run: bundle install
-    - run: bundle exec rspec
+      - name: StandardRB Linter
+        uses: andrewmcodes/standardrb-action@v0.0.2
+
+      - name: Changelog Enforcer
+        uses: dangoslen/changelog-enforcer@v1.6.0
+
+      - run: bundle install
+      - run: bundle exec rspec
