@@ -5,7 +5,7 @@ module ActsAsTaggableArrayOn
     def parse tags
       case tags
       when String
-        tags.split(/[ ]*,[ ]*/)
+        tags.split(/ *, */)
       else
         tags
       end
