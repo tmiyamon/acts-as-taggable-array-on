@@ -1,4 +1,4 @@
-require 'active_record'
+require "active_record"
 
 require "acts-as-taggable-array-on/version"
 require "acts-as-taggable-array-on/taggable"
