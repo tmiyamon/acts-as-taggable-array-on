@@ -16,7 +16,3 @@ jobs:
 
       - name: Changelog Enforcer
         uses: dangoslen/changelog-enforcer@v1.6.0
-
-      - run: gem install bundler
-      - run: bundle install
-      - run: bundle exec rspec
