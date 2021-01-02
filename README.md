@@ -20,8 +20,7 @@ bundle
 
 
 ## Setup
-
-To use it, you need to have an array column to act as taggable.
+To use it, you need to have an array column to act as taggable - `tags`. 
 
 ```ruby
 class CreateUser < ActiveRecord::Migration
@@ -35,13 +34,16 @@ class CreateUser < ActiveRecord::Migration
 end
 ```
 
-and bundle:
+- You can change from `string` to any other type here. But in case of any doubt, `string` is a great default.
+- Make sure not to lose `default: []`, it's important to always have empty array as default.
+
+Run a migration:
 
 ```shell
 rake db:migrate
 ```
 
-then
+Indicate that attribute is "taggable" in a Rails model, like this:
 
 ```ruby
 class User < ActiveRecord::Base
@@ -49,9 +51,8 @@ class User < ActiveRecord::Base
 end
 ```
 
-### types
-
-currently, these types supported
+### Types
+We currently tested only following types for underlying arrays:
 
 - `varchar[]`
   - `t.string :tags, array: true, default: []`
@@ -63,9 +64,8 @@ currently, these types supported
   - `t.integer :tags, array: true, default: []`
   - `add_column :users, :tags, :integer, array: true, default: []`
 
-## Usage
 
-Use PostgreSQL array normally to set/add/remove tags:
+## Usage
 
 ```ruby
 #set
@@ -81,8 +81,6 @@ user.tags << "awesome"
 user.tags -= ["awesome"]
 user.tags -= ["awesome", "slick"]
 ```
-
-ActsAsTaggableArrayOn defines 4 scope methods and 2 class methods as shown below.
 
 ### Scopes
 
