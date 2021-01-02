@@ -1,3 +1,9 @@
+## Unreleased
+- Standard linter used as a style guide
+- Ruby 2.4 support dropped
+- Support for Ruby 3.0 added
+- Support for Rails 6.1 added
+
 ## 0.6
 - Drop support for `EOL` versions of Ruby (below `2.4)`, and Rails (below `5.2`)
 - Alias `acts_as_taggable_on` to `taggable_array`
