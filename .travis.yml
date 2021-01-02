@@ -1,20 +1,19 @@
 language: ruby
 rvm:
-  - 2.4.8
   - 2.5.7
   - 2.6.5
+  - 2.7.0
+  - 3.0.0
 services:
   - postgresql
 gemfile:
   - gemfiles/rails_5_2.gemfile
   - gemfiles/rails_6_0.gemfile
+  - gemfiles/rails_6_1.gemfile
 before_script:
   - cp config/database.yml.travis config/database.yml
   - bundle exec rake db:create
 script:
   - bundle
   - bundle exec rspec
-matrix:
-  exclude:
-    - rvm: 2.4.8
-      gemfile: gemfiles/rails_6_0.gemfile
+
