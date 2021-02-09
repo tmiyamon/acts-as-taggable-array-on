@@ -12,6 +12,7 @@ require "acts-as-taggable-array-on"
 ActiveRecord::Migration.verbose = false
 
 class User < ActiveRecord::Base; end
+class ParanoiaUser < ActiveRecord::Base; end
 
 RSpec.configure do |config|
   config.before(:all) do
@@ -41,6 +42,15 @@ def create_database
       t.text :sizes, array: true, default: []
       t.integer :codes, array: true, default: []
       t.timestamps null: true
+    end
+
+    create_table :paranoia_users do |t|
+      t.string :name
+      t.string :colors, array: true, default: []
+      t.text :sizes, array: true, default: []
+      t.integer :codes, array: true, default: []
+      t.timestamps null: true
+      t.datetime "deleted_at"
     end
   end
 end

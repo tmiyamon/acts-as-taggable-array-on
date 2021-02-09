@@ -23,7 +23,12 @@ module ActsAsTaggableArrayOn
             subquery_scope = unscoped.select("unnest(#{table_name}.#{tag_name}) as tag").distinct
             subquery_scope = subquery_scope.instance_eval(&block) if block
 
-            from(subquery_scope).pluck("tag")
+            # this clause is to support models with acts-as-paranoid or paranoia
+            if respond_to?(:without_deleted)
+              unscope(where: :deleted_at).from(subquery_scope.without_deleted).pluck("tag")
+            else
+              from(subquery_scope).pluck("tag")
+            end
           end
 
           define_method :"#{tag_name}_cloud" do |options = {}, &block|

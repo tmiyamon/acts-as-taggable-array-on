@@ -153,4 +153,36 @@ describe ActsAsTaggableArrayOn::Taggable do
       expect(User.without_any_colors("white").with_any_colors("blue").order(:created_at).limit(10)).to eq [@user1, @user3]
     end
   end
+
+  context 'with paranoia' do
+    before do
+      @user1 = ParanoiaUser.create name: "Tom", colors: ["red", "blue"], sizes: ["medium", "large"], codes: [456, 789]
+      @user2 = ParanoiaUser.create name: "Ken", colors: ["black", "white", "red"], sizes: ["small", "large"], codes: [123, 789]
+      @user3 = ParanoiaUser.create name: "Joe", colors: ["black", "blue"], sizes: ["small", "medium", "large"], codes: [123, 456, 789]
+
+      ParanoiaUser.acts_as_taggable_array_on :colors
+      ParanoiaUser.acts_as_taggable_array_on :sizes
+      ParanoiaUser.taggable_array :codes
+    end
+
+    describe "#all_colors" do
+      it "returns all of tag_name" do
+        expect(ParanoiaUser.all_colors).to match_array([@user1, @user2, @user3].map(&:colors).flatten.uniq)
+      end
+
+      it "returns filtered tags for tag_name with block" do
+        expect(ParanoiaUser.all_colors { where(name: ["Ken", "Joe"]) }).to match_array([@user2, @user3].map(&:colors).flatten.uniq)
+      end
+
+      it "returns filtered tags for tag_name with prepended scope" do
+        expect(ParanoiaUser.where("tag like ?", "bl%").all_colors).to match_array([@user1, @user2, @user3].map(&:colors).flatten.uniq.select { |name| name.start_with? "bl" })
+      end
+
+      it "returns filtered tags for tag_name with prepended scope and bock" do
+        expect(ParanoiaUser.where("tag like ?", "bl%").all_colors { where(name: ["Ken", "Joe"]) }).to match_array([@user2, @user3].map(&:colors).flatten.uniq.select { |name| name.start_with? "bl" })
+      end
+    end
+
+  end
+
 end
