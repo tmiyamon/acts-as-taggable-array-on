@@ -18,7 +18,7 @@ module ActsAsTaggableArrayOn
         scope :"without_any_#{tag_name}", ->(tags) { where.not("#{table_name}.#{tag_name} && ARRAY[?]::#{tag_array_type_fetcher.call}[]", parser.parse(tags)) }
         scope :"without_all_#{tag_name}", ->(tags) { where.not("#{table_name}.#{tag_name} @> ARRAY[?]::#{tag_array_type_fetcher.call}[]", parser.parse(tags)) }
 
-        scope :"#{table_name}_contains", ->(*tags) do
+        scope :"#{tag_name}_contains", ->(*tags) do
           with_any_tags(tags)
         end
 
