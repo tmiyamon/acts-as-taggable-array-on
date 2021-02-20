@@ -45,7 +45,7 @@ module ActsAsTaggableArrayOn
           define_method :"select2_#{tag_name}_search" do |options = {}, search_term|
             t = search_term.try(:split, ' ') || []
 
-            subquery_scope = unscope(:order).select("unnest(#{table_name}.#{tag_name}) as tag").distinct
+            subquery_scope = unscope(:order).order(:tag).select("unnest(#{table_name}.#{tag_name}) as tag").distinct
 
             q = unscoped.from(subquery_scope).limit(25)
             q = q.where("tag ILIKE ?", "#{t[0]}%") if t[0]
