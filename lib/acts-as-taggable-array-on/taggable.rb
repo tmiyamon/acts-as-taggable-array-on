@@ -19,7 +19,7 @@ module ActsAsTaggableArrayOn
         scope :"without_all_#{tag_name}", ->(tags) { where.not("#{table_name}.#{tag_name} @> ARRAY[?]::#{tag_array_type_fetcher.call}[]", parser.parse(tags)) }
 
         scope :"#{tag_name}_contains", ->(*tags) do
-          with_any_tags(tags)
+          send("with_any_#{tag_name}", tags)
         end
 
         self.class.class_eval do
@@ -45,7 +45,7 @@ module ActsAsTaggableArrayOn
           define_method :"select2_#{tag_name}_search" do |options = {}, search_term|
             t = search_term.try(:split, ' ') || []
 
-            subquery_scope = unscope(:order).order(:tag).select("unnest(#{table_name}.#{tag_name}) as tag").distinct
+            subquery_scope = unscope(:order).order(tag_name).select("unnest(#{table_name}.#{tag_name}) as tag").distinct
 
             q = unscoped.from(subquery_scope).limit(25)
             q = q.where("tag ILIKE ?", "#{t[0]}%") if t[0]
