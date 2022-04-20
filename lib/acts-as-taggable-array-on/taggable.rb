@@ -23,14 +23,14 @@ module ActsAsTaggableArrayOn
             subquery_scope = unscoped.select("unnest(#{table_name}.#{tag_name}) as tag").distinct
             subquery_scope = subquery_scope.instance_eval(&block) if block
 
-            from(subquery_scope).pluck("tag")
+            unscoped(:where).from(subquery_scope).pluck("tag")
           end
 
           define_method :"#{tag_name}_cloud" do |options = {}, &block|
             subquery_scope = unscoped.select("unnest(#{table_name}.#{tag_name}) as tag")
             subquery_scope = subquery_scope.instance_eval(&block) if block
 
-            from(subquery_scope).group("tag").order("tag").pluck(Arel.sql("tag, count(*) as count"))
+            unscoped(:where).from(subquery_scope).group("tag").order("tag").pluck(Arel.sql("tag, count(*) as count"))
           end
         end
       end
