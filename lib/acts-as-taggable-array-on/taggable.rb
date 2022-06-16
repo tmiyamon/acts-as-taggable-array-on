@@ -3,6 +3,7 @@
 module ActsAsTaggableArrayOn
   module Taggable
     class TaggableError < StandardError; end
+
     class InvalidAllowListTypeError < TaggableError
       def to_s
         "Allow list has to be an array"
