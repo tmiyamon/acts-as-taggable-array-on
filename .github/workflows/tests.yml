@@ -26,14 +26,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-ruby@v1
+      - uses: ruby/setup-ruby@v1
         with:
           ruby-version: 2.7.6
           # runs 'bundle install' and caches installed gems automatically
           bundler-cache: true
-
-      - name: Install gems
-        run: bundle install
 
       - name: Create a database
         run: rake db:create
