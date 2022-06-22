@@ -11,13 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-
-      - name: Bundle install
-        env:
-          RAILS_ENV: test
-        run: |
-          gem install bundler
-          bundle install --jobs 4 --retry 3 --path vendor/bundle
+      - uses: actions/setup-ruby@v1
+        with:
+          ruby-version: 2.7.6
+          # runs 'bundle install' and caches installed gems automatically
+          bundler-cache: true
 
       - name: Create a database
         run: rake db:create
