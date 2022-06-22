@@ -17,6 +17,9 @@ jobs:
           # runs 'bundle install' and caches installed gems automatically
           bundler-cache: true
 
+      - name: Install gems
+        run: bundle install
+
       - name: Create a database
         run: rake db:create
 
