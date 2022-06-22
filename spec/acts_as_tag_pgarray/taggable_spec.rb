@@ -5,10 +5,13 @@ describe ActsAsTaggableArrayOn::Taggable do
     @user1 = User.create name: "Tom", colors: ["red", "blue"], sizes: ["medium", "large"], codes: [456, 789]
     @user2 = User.create name: "Ken", colors: ["black", "white", "red"], sizes: ["small", "large"], codes: [123, 789]
     @user3 = User.create name: "Joe", colors: ["black", "blue"], sizes: ["small", "medium", "large"], codes: [123, 456, 789]
+    @admin1 = Admin.create name: "Dick", colors: ["purple", "orange"], sizes: ["medium", "large"], codes: [123, 456, 789]
+    @admin2 = Admin.create name: "Harry", colors: ["white", "blue"], sizes: ["small", "large"], codes: [456, 123]
 
     User.acts_as_taggable_array_on :colors
     User.acts_as_taggable_array_on :sizes
     User.taggable_array :codes
+
   end
 
   context "without database table" do
@@ -63,23 +66,23 @@ describe ActsAsTaggableArrayOn::Taggable do
   end
 
   it "should work with ::text typed array" do
-    expect(User.with_any_sizes(["small"])).to match_array([@user2, @user3])
-    expect(User.with_all_sizes(["small", "large"])).to match_array([@user2, @user3])
-    expect(User.without_any_sizes("medium")).to match_array([@user2])
-    expect(User.without_all_sizes("medium")).to match_array([@user2])
+    expect(User.with_any_sizes(["small"])).to match_array([@user2, @user3, @admin2])
+    expect(User.with_all_sizes(["small", "large"])).to match_array([@user2, @user3, @admin2])
+    expect(User.without_any_sizes("medium")).to match_array([@user2, @admin2])
+    expect(User.without_all_sizes("medium")).to match_array([@user2, @admin2])
   end
 
   it "should work with ::integer typed array" do
-    expect(User.with_any_codes([123])).to match_array([@user2, @user3])
-    expect(User.with_all_codes([123, 789])).to match_array([@user2, @user3])
+    expect(User.with_any_codes([123])).to match_array([@user2, @user3, @admin1, @admin2])
+    expect(User.with_all_codes([123, 789])).to match_array([@user2, @user3, @admin1])
     expect(User.without_any_codes(456)).to match_array([@user2])
     expect(User.without_all_codes(456)).to match_array([@user2])
   end
 
   describe "#with_any_tags" do
     it "returns users having any tags of args" do
-      expect(User.with_any_colors(["red", "blue"])).to match_array([@user1, @user2, @user3])
-      expect(User.with_any_colors("red, blue")).to match_array([@user1, @user2, @user3])
+      expect(User.with_any_colors(["red", "blue"])).to match_array([@user1, @user2, @user3, @admin2])
+      expect(User.with_any_colors("red, blue")).to match_array([@user1, @user2, @user3, @admin2])
     end
   end
 
@@ -92,29 +95,32 @@ describe ActsAsTaggableArrayOn::Taggable do
 
   describe "#without_any_tags" do
     it "returns users not having any tags of args" do
-      expect(User.without_any_colors(["red", "blue"])).to match_array([])
-      expect(User.without_any_colors("red, blue")).to match_array([])
+      expect(User.without_any_colors(["red", "blue"])).to match_array([@admin1])
+      expect(User.without_any_colors("red, blue")).to match_array([@admin1])
     end
   end
 
   describe "#without_all_tags" do
     it "returns users not having all tags of args" do
-      expect(User.without_all_colors(["red", "blue"])).to match_array([@user2, @user3])
-      expect(User.without_all_colors("red, blue")).to match_array([@user2, @user3])
+      expect(User.without_all_colors(["red", "blue"])).to match_array([@user2, @user3, @admin1, @admin2])
+      expect(User.without_all_colors("red, blue")).to match_array([@user2, @user3, @admin1, @admin2])
     end
   end
 
   describe "#all_colors" do
     it "returns all of tag_name" do
-      expect(User.all_colors).to match_array([@user1, @user2, @user3].map(&:colors).flatten.uniq)
+      expect(User.all_colors).to match_array([@user1, @user2, @user3, @admin1, @admin2].map(&:colors).flatten.uniq)
+      expect(Admin.all_colors).to match_array([@admin1, @admin2].map(&:colors).flatten.uniq)
     end
 
     it "returns filtered tags for tag_name with block" do
       expect(User.all_colors { where(name: ["Ken", "Joe"]) }).to match_array([@user2, @user3].map(&:colors).flatten.uniq)
+      expect(Admin.all_colors { where(name: ["Dick", "Harry"]) }).to match_array([@admin1, @admin2].map(&:colors).flatten.uniq)
     end
 
     it "returns filtered tags for tag_name with prepended scope" do
       expect(User.where("tag like ?", "bl%").all_colors).to match_array([@user1, @user2, @user3].map(&:colors).flatten.uniq.select { |name| name.start_with? "bl" })
+      expect(Admin.where("tag like ?", "bl%").all_colors).to match_array([@admin2].map(&:colors).flatten.uniq.select { |name| name.start_with? "bl" })
     end
 
     it "returns filtered tags for tag_name with prepended scope and bock" do
@@ -125,7 +131,7 @@ describe ActsAsTaggableArrayOn::Taggable do
   describe "#colors_cloud" do
     it "returns tag cloud for tag_name" do
       expect(User.colors_cloud).to match_array(
-        [@user1, @user2, @user3].map(&:colors).flatten.group_by(&:to_s).map { |k, v| [k, v.count] }
+        [@user1, @user2, @user3, @admin1, @admin2].map(&:colors).flatten.group_by(&:to_s).map { |k, v| [k, v.count] }
       )
     end
 
@@ -137,7 +143,7 @@ describe ActsAsTaggableArrayOn::Taggable do
 
     it "returns filtered tag cloud for tag_name with prepended scope" do
       expect(User.where("tag like ?", "bl%").colors_cloud).to match_array(
-        [@user1, @user2, @user3].map(&:colors).flatten.group_by(&:to_s).map { |k, v| [k, v.count] }.select { |name, count| name.start_with? "bl" }
+        [@user1, @user2, @user3, @admin2].map(&:colors).flatten.group_by(&:to_s).map { |k, v| [k, v.count] }.select { |name, count| name.start_with? "bl" }
       )
     end
 

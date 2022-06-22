@@ -12,6 +12,7 @@ require "acts-as-taggable-array-on"
 ActiveRecord::Migration.verbose = false
 
 class User < ActiveRecord::Base; end
+class Admin < User; end
 
 RSpec.configure do |config|
   config.before(:all) do
@@ -37,6 +38,7 @@ def create_database
   ActiveRecord::Schema.define(version: 1) do
     create_table :users do |t|
       t.string :name
+      t.string :type
       t.string :colors, array: true, default: []
       t.text :sizes, array: true, default: []
       t.integer :codes, array: true, default: []
