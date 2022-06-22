@@ -1,0 +1,16 @@
+name: "Running Tests"
+
+on:
+  - pull_request
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Running a test
+        run: bundle exec rspec
