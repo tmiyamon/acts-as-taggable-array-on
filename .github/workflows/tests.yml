@@ -12,5 +12,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Create a database
+        run: rake db:create
+
       - name: Running a test
         run: bundle exec rspec
