@@ -83,13 +83,13 @@ user.tags -= ["awesome", "slick"]
 
 ### Validations
 
-#### `allow_list`
+#### `allowed`
 
-If a allow list is defined for a tag, it will be validated to ensure that each item in tags array is allowed.
+If a allowed option is defined for a tag, it will be validated to ensure that each item in tags array is on allowed list.
 
 ```ruby
   class User < ActiveRecord::Base
-    taggable_array :colors, allow_list: %w[red blue green]
+    taggable_array :colors, allowed: %w[red blue green]
   end
 ```
 

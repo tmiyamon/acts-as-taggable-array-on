@@ -8,7 +8,7 @@ describe ActsAsTaggableArrayOn::Taggable do
     end
   end
 
-  context "without allow_list" do
+  context "without allowed option" do
     before do
       @user1 = User.create name: "Tom", colors: ["red", "blue"], sizes: ["medium", "large"], codes: [456, 789]
       @user2 = User.create name: "Ken", colors: ["black", "white", "red"], sizes: ["small", "large"], codes: [123, 789]
@@ -162,17 +162,17 @@ describe ActsAsTaggableArrayOn::Taggable do
     end
   end
 
-  context "with allow_list" do
+  context "with allowed option" do
     context "when options is not an array" do
       it "raises an error" do
-        expect { User.acts_as_taggable_array_on :colors, allow_list: "red, blue" }
+        expect { User.acts_as_taggable_array_on :colors, allowed: "red, blue" }
           .to raise_error(described_class::InvalidAllowListTypeError)
       end
     end
 
     context "when options is an array" do
       before do
-        User.acts_as_taggable_array_on :colors, allow_list: %w[red blue]
+        User.acts_as_taggable_array_on :colors, allowed: %w[red blue]
       end
 
       it "validates if all tags are included in options" do

@@ -18,10 +18,10 @@ module ActsAsTaggableArrayOn
 
     module ClassMethod
       def acts_as_taggable_array_on(tag_name, **args)
-        if args[:allow_list].present?
-          raise InvalidAllowListTypeError if !args[:allow_list].is_a?(Array)
+        if args[:allowed].present?
+          raise InvalidAllowListTypeError if !args[:allowed].is_a?(Array)
 
-          const_set "#{tag_name.upcase}_ALLOWED", args[:allow_list]
+          const_set "#{tag_name.upcase}_ALLOWED", args[:allowed]
 
           validate :"#{tag_name}_permitted"
 
