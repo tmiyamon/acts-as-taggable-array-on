@@ -171,17 +171,104 @@ describe ActsAsTaggableArrayOn::Taggable do
     end
 
     context "when options is an array" do
-      before do
-        User.acts_as_taggable_array_on :colors, allowed: %w[red blue]
+      context "when tag is array of varchar type" do
+        shared_examples "allowed with varchar array" do
+          it "accepts allowed values as strings" do
+            expect(User.new(colors: %w[blue red])).to be_valid
+            expect(User.new(colors: %w[red])).to be_valid
+          end
+
+          it "accepts allowed values as symbols" do
+            expect(User.new(colors: %i[blue red])).to be_valid
+            expect(User.new(colors: %i[blue])).to be_valid
+          end
+
+          it "does not accepts not allowed values as strings" do
+            expect(User.new(colors: [1, "red", 2])).not_to be_valid
+            expect(User.new(colors: %w[orange])).not_to be_valid
+            expect(User.new(colors: %w[red orange])).not_to be_valid
+            expect(User.new(colors: %i[red orange])).not_to be_valid
+          end
+        end
+
+        before do
+          User.acts_as_taggable_array_on :colors, allowed: allowed
+        end
+
+        context "when allowed is an array of strings" do
+          let(:allowed) { %w[red blue] }
+
+          it_behaves_like "allowed with varchar array"
+        end
+
+        context "when allowed is an array of symbols" do
+          let(:allowed) { %i[red blue] }
+
+          it_behaves_like "allowed with varchar array"
+        end
       end
 
-      it "validates if all tags are included in options" do
-        expect(User.new(colors: %w[blue red])).to be_valid
-        expect(User.new(colors: %w[red])).to be_valid
-        expect(User.new(colors: [1, "red", 2])).not_to be_valid
-        expect(User.new(colors: %w[blue])).to be_valid
-        expect(User.new(colors: %w[orange])).not_to be_valid
-        expect(User.new(colors: %w[red orange])).not_to be_valid
+      context "when tag is array of text type" do
+        shared_examples "allowed with text array" do
+          it "accepts allowed values as strings" do
+            expect(User.new(sizes: %w[small big])).to be_valid
+            expect(User.new(sizes: %w[big])).to be_valid
+          end
+
+          it "accepts allowed values as symbols" do
+            expect(User.new(sizes: %i[small big])).to be_valid
+            expect(User.new(sizes: %i[small])).to be_valid
+          end
+
+          it "does not accepts not allowed values as strings" do
+            expect(User.new(sizes: [1, "big", 2])).not_to be_valid
+            expect(User.new(sizes: %w[medium])).not_to be_valid
+            expect(User.new(sizes: %w[big medium])).not_to be_valid
+            expect(User.new(sizes: %i[big medium])).not_to be_valid
+          end
+        end
+
+        before do
+          User.acts_as_taggable_array_on :sizes, allowed: allowed
+        end
+
+        context "when allowed is an array of strings" do
+          let(:allowed) { %w[big small] }
+
+          it_behaves_like "allowed with text array"
+        end
+
+        context "when allowed is an array of symbols" do
+          let(:allowed) { %i[big small] }
+
+          it_behaves_like "allowed with text array"
+        end
+      end
+
+      context "when tag is array of integer type" do
+        before do
+          User.acts_as_taggable_array_on :codes, allowed: allowed
+        end
+
+        context "when allowed is an array of integers" do
+          let(:allowed) { [1002, 1003] }
+
+          it "accepts allowed values as integers" do
+            expect(User.new(codes: [1003, 1002])).to be_valid
+            expect(User.new(codes: [1002])).to be_valid
+          end
+
+          it "accepts allowed values as strings" do
+            expect(User.new(codes: [1003, "1002"])).to be_valid
+            expect(User.new(codes: ["1002"])).to be_valid
+          end
+
+          it "does not accepts not allowed values" do
+            expect(User.new(codes: [1, 1002, 2])).not_to be_valid
+            expect(User.new(codes: [1])).not_to be_valid
+            expect(User.new(codes: ["NaN"])).not_to be_valid
+          end
+        end
       end
     end
   end

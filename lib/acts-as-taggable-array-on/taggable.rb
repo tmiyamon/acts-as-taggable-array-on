@@ -49,12 +49,13 @@ module ActsAsTaggableArrayOn
       def define_allowed_validations!(tag_name, allowed)
         raise InvalidAllowListTypeError if !allowed.is_a?(Array)
 
-        const_set "#{tag_name.upcase}_ALLOWED", allowed
+        remove_const "#{tag_name.upcase}_ALLOWED" if const_defined?("#{tag_name.upcase}_ALLOWED")
+        const_set "#{tag_name.upcase}_ALLOWED", allowed.map(&:to_s)
 
         validate :"#{tag_name}_permitted"
 
         define_method :"#{tag_name}_permitted" do
-          return unless send(tag_name).any? { |i| !"#{model_name}::#{tag_name.upcase}_ALLOWED".constantize.include?(i) }
+          return unless send(tag_name).any? { |i| !"#{model_name}::#{tag_name.upcase}_ALLOWED".constantize.include?(i.to_s) }
 
           errors.add(:"#{tag_name}", "allowed values are #{"#{model_name}::#{tag_name.upcase}_ALLOWED".constantize.to_sentence}")
         end
