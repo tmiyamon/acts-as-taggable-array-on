@@ -18,19 +18,7 @@ module ActsAsTaggableArrayOn
 
     module ClassMethod
       def acts_as_taggable_array_on(tag_name, **args)
-        if args[:allowed].present?
-          raise InvalidAllowListTypeError if !args[:allowed].is_a?(Array)
-
-          const_set "#{tag_name.upcase}_ALLOWED", args[:allowed]
-
-          validate :"#{tag_name}_permitted"
-
-          define_method :"#{tag_name}_permitted" do
-            return unless send(tag_name).any? { |i| !"#{model_name}::#{tag_name.upcase}_ALLOWED".constantize.include?(i) }
-
-            errors.add(:"#{tag_name}", "allowed values are #{"#{model_name}::#{tag_name.upcase}_ALLOWED".constantize.to_sentence}")
-          end
-        end
+        define_allowed_validations!(tag_name, args[:allowed]) if args[:allowed].present?
 
         tag_array_type_fetcher = -> { TYPE_MATCHER[columns_hash[tag_name.to_s].type] }
         parser = ActsAsTaggableArrayOn.parser
@@ -57,6 +45,20 @@ module ActsAsTaggableArrayOn
         end
       end
       alias_method :taggable_array, :acts_as_taggable_array_on
+
+      def define_allowed_validations!(tag_name, allowed)
+        raise InvalidAllowListTypeError if !allowed.is_a?(Array)
+
+        const_set "#{tag_name.upcase}_ALLOWED", allowed
+
+        validate :"#{tag_name}_permitted"
+
+        define_method :"#{tag_name}_permitted" do
+          return unless send(tag_name).any? { |i| !"#{model_name}::#{tag_name.upcase}_ALLOWED".constantize.include?(i) }
+
+          errors.add(:"#{tag_name}", "allowed values are #{"#{model_name}::#{tag_name.upcase}_ALLOWED".constantize.to_sentence}")
+        end
+      end
     end
   end
 end
