@@ -18,7 +18,19 @@ module ActsAsTaggableArrayOn
 
     module ClassMethod
       def acts_as_taggable_array_on(tag_name, **args)
-        raise InvalidAllowListTypeError if args[:allow_list].present? && !args[:allow_list].is_a?(Array)
+        if args[:allow_list].present?
+          raise InvalidAllowListTypeError if !args[:allow_list].is_a?(Array)
+
+          const_set "#{tag_name.upcase}_ALLOWED", args[:allow_list]
+
+          validate :"#{tag_name}_permitted"
+
+          define_method :"#{tag_name}_permitted" do
+            return unless send(tag_name).any? { |i| !"#{model_name}::#{tag_name.upcase}_ALLOWED".constantize.include?(i) }
+
+            errors.add(:"#{tag_name}", "allowed values are #{"#{model_name}::#{tag_name.upcase}_ALLOWED".constantize.to_sentence}")
+          end
+        end
 
         tag_array_type_fetcher = -> { TYPE_MATCHER[columns_hash[tag_name.to_s].type] }
         parser = ActsAsTaggableArrayOn.parser
@@ -27,16 +39,6 @@ module ActsAsTaggableArrayOn
         scope :"with_all_#{tag_name}", ->(tags) { where("#{table_name}.#{tag_name} @> ARRAY[?]::#{tag_array_type_fetcher.call}[]", parser.parse(tags)) }
         scope :"without_any_#{tag_name}", ->(tags) { where.not("#{table_name}.#{tag_name} && ARRAY[?]::#{tag_array_type_fetcher.call}[]", parser.parse(tags)) }
         scope :"without_all_#{tag_name}", ->(tags) { where.not("#{table_name}.#{tag_name} @> ARRAY[?]::#{tag_array_type_fetcher.call}[]", parser.parse(tags)) }
-
-        if args[:allow_list].present?
-          validate :"#{tag_name}_permitted"
-
-          define_method :"#{tag_name}_permitted" do
-            return unless send(tag_name).any? { |i| !args[:allow_list].include?(i) }
-
-            errors.add(:"#{tag_name}", "allowed values are #{args[:allow_list].to_sentence}")
-          end
-        end
 
         self.class.class_eval do
           define_method :"all_#{tag_name}" do |options = {}, &block|
