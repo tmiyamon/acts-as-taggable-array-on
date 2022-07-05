@@ -46,18 +46,22 @@ module ActsAsTaggableArrayOn
       end
       alias_method :taggable_array, :acts_as_taggable_array_on
 
+      private
+
       def define_allowed_validations!(tag_name, allowed)
         raise InvalidAllowListTypeError if !allowed.is_a?(Array)
 
-        remove_const "#{tag_name.upcase}_ALLOWED" if const_defined?("#{tag_name.upcase}_ALLOWED")
-        const_set "#{tag_name.upcase}_ALLOWED", allowed.map(&:to_s)
+        define_method :"#{tag_name}_allowed" do
+          allowed.map(&:to_s)
+        end
+        private :"#{tag_name}_allowed"
 
         validate :"#{tag_name}_permitted"
 
         define_method :"#{tag_name}_permitted" do
-          return unless send(tag_name).any? { |i| !"#{model_name}::#{tag_name.upcase}_ALLOWED".constantize.include?(i.to_s) }
+          return unless send(tag_name).any? { |i| !send(:"#{tag_name}_allowed").include?(i.to_s) }
 
-          errors.add(:"#{tag_name}", "allowed values are #{"#{model_name}::#{tag_name.upcase}_ALLOWED".constantize.to_sentence}")
+          errors.add(:"#{tag_name}", "allowed values are #{send(:"#{tag_name}_allowed").to_sentence}")
         end
       end
     end
