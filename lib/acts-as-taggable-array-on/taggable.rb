@@ -1,15 +1,9 @@
 # frozen_string_literal: true
 
+class ActiveRecord::TagDefinitionError <  ActiveRecord::ActiveRecordError; end
+
 module ActsAsTaggableArrayOn
   module Taggable
-    class TaggableError < StandardError; end
-
-    class InvalidAllowListTypeError < TaggableError
-      def to_s
-        "Allow list has to be an array"
-      end
-    end
-
     def self.included(base)
       base.extend(ClassMethod)
     end
@@ -49,7 +43,7 @@ module ActsAsTaggableArrayOn
       private
 
       def define_allowed_validations!(tag_name, allowed)
-        raise InvalidAllowListTypeError if !allowed.is_a?(Array)
+        raise ActiveRecord::TagDefinitionError, "Allowed must to be an array" if !allowed.is_a?(Array)
 
         define_method :"#{tag_name}_allowed" do
           allowed.map(&:to_s)

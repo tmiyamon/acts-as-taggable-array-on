@@ -166,7 +166,7 @@ describe ActsAsTaggableArrayOn::Taggable do
     context "when options is not an array" do
       it "raises an error" do
         expect { User.acts_as_taggable_array_on :colors, allowed: "red, blue" }
-          .to raise_error(described_class::InvalidAllowListTypeError)
+          .to raise_error(ActiveRecord::TagDefinitionError)
       end
     end
 
