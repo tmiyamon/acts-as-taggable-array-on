@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+class ActiveRecord::TagDefinitionError <  ActiveRecord::ActiveRecordError; end
+
 module ActsAsTaggableArrayOn
   module Taggable
     def self.included(base)
@@ -9,7 +11,9 @@ module ActsAsTaggableArrayOn
     TYPE_MATCHER = {string: "varchar", text: "text", integer: "integer"}
 
     module ClassMethod
-      def acts_as_taggable_array_on(tag_name, *)
+      def acts_as_taggable_array_on(tag_name, **args)
+        define_allowed_validations!(tag_name, args[:allowed]) if args[:allowed].present?
+
         tag_array_type_fetcher = -> { TYPE_MATCHER[columns_hash[tag_name.to_s].type] }
         parser = ActsAsTaggableArrayOn.parser
 
@@ -35,6 +39,25 @@ module ActsAsTaggableArrayOn
         end
       end
       alias_method :taggable_array, :acts_as_taggable_array_on
+
+      private
+
+      def define_allowed_validations!(tag_name, allowed)
+        raise ActiveRecord::TagDefinitionError, "Allowed must to be an array" if !allowed.is_a?(Array)
+
+        define_method :"#{tag_name}_allowed" do
+          allowed.map(&:to_s)
+        end
+        private :"#{tag_name}_allowed"
+
+        validate :"#{tag_name}_permitted"
+
+        define_method :"#{tag_name}_permitted" do
+          return unless send(tag_name).any? { |i| !send(:"#{tag_name}_allowed").include?(i.to_s) }
+
+          errors.add(:"#{tag_name}", "allowed values are #{send(:"#{tag_name}_allowed").to_sentence}")
+        end
+      end
     end
   end
 end

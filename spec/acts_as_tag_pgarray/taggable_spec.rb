@@ -1,19 +1,6 @@
 require "spec_helper"
 
 describe ActsAsTaggableArrayOn::Taggable do
-  before do
-    @user1 = User.create name: "Tom", colors: ["red", "blue"], sizes: ["medium", "large"], codes: [456, 789]
-    @user2 = User.create name: "Ken", colors: ["black", "white", "red"], sizes: ["small", "large"], codes: [123, 789]
-    @user3 = User.create name: "Joe", colors: ["black", "blue"], sizes: ["small", "medium", "large"], codes: [123, 456, 789]
-    @admin1 = Admin.create name: "Dick", colors: ["purple", "orange"], sizes: ["medium", "large"], codes: [123, 456, 789]
-    @admin2 = Admin.create name: "Harry", colors: ["white", "blue"], sizes: ["small", "large"], codes: [456, 123]
-
-    User.acts_as_taggable_array_on :colors
-    User.acts_as_taggable_array_on :sizes
-    User.taggable_array :codes
-
-  end
-
   context "without database table" do
     it "doesn't fail on class method call" do
       class Dummy < ActiveRecord::Base; end
@@ -21,142 +8,268 @@ describe ActsAsTaggableArrayOn::Taggable do
     end
   end
 
-  describe "#acts_as_taggable_array_on" do
-    it "defines named scope to match any tags" do
-      expect(User).to respond_to(:with_any_colors)
+  context "without allowed option" do
+    before do
+      @user1 = User.create name: "Tom", colors: ["red", "blue"], sizes: ["medium", "large"], codes: [456, 789]
+      @user2 = User.create name: "Ken", colors: ["black", "white", "red"], sizes: ["small", "large"], codes: [123, 789]
+      @user3 = User.create name: "Joe", colors: ["black", "blue"], sizes: ["small", "medium", "large"], codes: [123, 456, 789]
+
+      @admin1 = Admin.create name: "Dick", colors: ["purple", "orange"], sizes: ["medium", "large"], codes: [123, 456, 789]
+      @admin2 = Admin.create name: "Harry", colors: ["white", "blue"], sizes: ["small", "large"], codes: [456, 123]
+
+      User.acts_as_taggable_array_on :colors
+      User.acts_as_taggable_array_on :sizes
+      User.taggable_array :codes
     end
-    it "defines named scope to match all tags" do
-      expect(User).to respond_to(:with_all_colors)
+
+    describe "#acts_as_taggable_array_on" do
+      it "defines named scope to match any tags" do
+        expect(User).to respond_to(:with_any_colors)
+      end
+      it "defines named scope to match all tags" do
+        expect(User).to respond_to(:with_all_colors)
+      end
+      it "defines named scope not to match any tags" do
+        expect(User).to respond_to(:without_any_colors)
+      end
+      it "defines named scope not to match all tags" do
+        expect(User).to respond_to(:without_all_colors)
+      end
     end
-    it "defines named scope not to match any tags" do
-      expect(User).to respond_to(:without_any_colors)
+
+    describe "#taggable_array_on" do
+      it "defines named scope to match any tags" do
+        expect(User).to respond_to(:with_any_codes)
+      end
+      it "defines named scope to match all tags" do
+        expect(User).to respond_to(:with_all_codes)
+      end
+      it "defines named scope not to match any tags" do
+        expect(User).to respond_to(:without_any_codes)
+      end
+      it "defines named scope not to match all tags" do
+        expect(User).to respond_to(:without_all_codes)
+      end
     end
-    it "defines named scope not to match all tags" do
-      expect(User).to respond_to(:without_all_colors)
+
+    it "should define table name un-ambiguously" do
+      sql = User.with_any_sizes(["small"]).to_sql
+      expect(sql).to eql("SELECT \"users\".* FROM \"users\" WHERE (users.sizes && ARRAY['small']::text[])")
+
+      sql = User.with_all_sizes(["small"]).to_sql
+      expect(sql).to eql("SELECT \"users\".* FROM \"users\" WHERE (users.sizes @> ARRAY['small']::text[])")
+
+      sql = User.without_any_sizes(["small"]).to_sql
+      expect(sql).to eql("SELECT \"users\".* FROM \"users\" WHERE NOT (users.sizes && ARRAY['small']::text[])")
+
+      sql = User.without_all_sizes(["small"]).to_sql
+      expect(sql).to eql("SELECT \"users\".* FROM \"users\" WHERE NOT (users.sizes @> ARRAY['small']::text[])")
+    end
+
+    it "should work with ::text typed array" do
+      expect(User.with_any_sizes(["small"])).to match_array([@user2, @user3, @admin2])
+      expect(User.with_all_sizes(["small", "large"])).to match_array([@user2, @user3, @admin2])
+      expect(User.without_any_sizes("medium")).to match_array([@user2, @admin2])
+      expect(User.without_all_sizes("medium")).to match_array([@user2, @admin2])
+    end
+
+    it "should work with ::integer typed array" do
+      expect(User.with_any_codes([123])).to match_array([@user2, @user3, @admin1, @admin2])
+      expect(User.with_all_codes([123, 789])).to match_array([@user2, @user3, @admin1])
+      expect(User.without_any_codes(456)).to match_array([@user2])
+      expect(User.without_all_codes(456)).to match_array([@user2])
+    end
+
+    describe "#with_any_tags" do
+      it "returns users having any tags of args" do
+        expect(User.with_any_colors(["red", "blue"])).to match_array([@user1, @user2, @user3, @admin2])
+        expect(User.with_any_colors("red, blue")).to match_array([@user1, @user2, @user3, @admin2])
+      end
+    end
+
+    describe "#with_all_tags" do
+      it "returns users having all tags of args" do
+        expect(User.with_all_colors(["red", "blue"])).to match_array([@user1])
+        expect(User.with_all_colors("red, blue")).to match_array([@user1])
+      end
+    end
+
+    describe "#without_any_tags" do
+      it "returns users not having any tags of args" do
+        expect(User.without_any_colors(["red", "blue"])).to match_array([@admin1])
+        expect(User.without_any_colors("red, blue")).to match_array([@admin1])
+      end
+    end
+
+    describe "#without_all_tags" do
+      it "returns users not having all tags of args" do
+        expect(User.without_all_colors(["red", "blue"])).to match_array([@user2, @user3, @admin1, @admin2])
+        expect(User.without_all_colors("red, blue")).to match_array([@user2, @user3, @admin1, @admin2])
+      end
+    end
+
+    describe "#all_colors" do
+      it "returns all of tag_name" do
+        expect(User.all_colors).to match_array([@user1, @user2, @user3, @admin1, @admin2].map(&:colors).flatten.uniq)
+        expect(Admin.all_colors).to match_array([@admin1, @admin2].map(&:colors).flatten.uniq)
+      end
+
+      it "returns filtered tags for tag_name with block" do
+        expect(User.all_colors { where(name: ["Ken", "Joe"]) }).to match_array([@user2, @user3].map(&:colors).flatten.uniq)
+        expect(Admin.all_colors { where(name: ["Dick", "Harry"]) }).to match_array([@admin1, @admin2].map(&:colors).flatten.uniq)
+      end
+
+      it "returns filtered tags for tag_name with prepended scope" do
+        expect(User.where("tag like ?", "bl%").all_colors).to match_array([@user1, @user2, @user3].map(&:colors).flatten.uniq.select { |name| name.start_with? "bl" })
+        expect(Admin.where("tag like ?", "bl%").all_colors).to match_array([@admin2].map(&:colors).flatten.uniq.select { |name| name.start_with? "bl" })
+      end
+
+      it "returns filtered tags for tag_name with prepended scope and block" do
+        expect(User.where("tag like ?", "bl%").all_colors { where(name: ["Ken", "Joe"]) }).to match_array([@user2, @user3].map(&:colors).flatten.uniq.select { |name| name.start_with? "bl" })
+      end
+    end
+
+    describe "#colors_cloud" do
+      it "returns tag cloud for tag_name" do
+        expect(User.colors_cloud).to match_array(
+          [@user1, @user2, @user3, @admin1, @admin2].map(&:colors).flatten.group_by(&:to_s).map { |k, v| [k, v.count] }
+        )
+      end
+
+      it "returns filtered tag cloud for tag_name with block" do
+        expect(User.colors_cloud { where(name: ["Ken", "Joe"]) }).to match_array(
+          [@user2, @user3].map(&:colors).flatten.group_by(&:to_s).map { |k, v| [k, v.count] }
+        )
+      end
+
+      it "returns filtered tag cloud for tag_name with prepended scope" do
+        expect(User.where("tag like ?", "bl%").colors_cloud).to match_array(
+          [@user1, @user2, @user3, @admin2].map(&:colors).flatten.group_by(&:to_s).map { |k, v| [k, v.count] }.select { |name, count| name.start_with? "bl" }
+        )
+      end
+
+      it "returns filtered tag cloud for tag_name with prepended scope and block" do
+        expect(User.where("tag like ?", "bl%").colors_cloud { where(name: ["Ken", "Joe"]) }).to match_array(
+          [@user2, @user3].map(&:colors).flatten.group_by(&:to_s).map { |k, v| [k, v.count] }.select { |name, count| name.start_with? "bl" }
+        )
+      end
+    end
+
+    describe "with complex scope" do
+      it "works properly" do
+        expect(User.without_any_colors("white").with_any_colors("blue").order(:created_at).limit(10)).to eq [@user1, @user3]
+      end
     end
   end
 
-  describe "#taggable_array_on" do
-    it "defines named scope to match any tags" do
-      expect(User).to respond_to(:with_any_codes)
-    end
-    it "defines named scope to match all tags" do
-      expect(User).to respond_to(:with_all_codes)
-    end
-    it "defines named scope not to match any tags" do
-      expect(User).to respond_to(:without_any_codes)
-    end
-    it "defines named scope not to match all tags" do
-      expect(User).to respond_to(:without_all_codes)
-    end
-  end
-
-  it "should define table name un-ambiguously" do
-    sql = User.with_any_sizes(["small"]).to_sql
-    expect(sql).to eql("SELECT \"users\".* FROM \"users\" WHERE (users.sizes && ARRAY['small']::text[])")
-
-    sql = User.with_all_sizes(["small"]).to_sql
-    expect(sql).to eql("SELECT \"users\".* FROM \"users\" WHERE (users.sizes @> ARRAY['small']::text[])")
-
-    sql = User.without_any_sizes(["small"]).to_sql
-    expect(sql).to eql("SELECT \"users\".* FROM \"users\" WHERE NOT (users.sizes && ARRAY['small']::text[])")
-
-    sql = User.without_all_sizes(["small"]).to_sql
-    expect(sql).to eql("SELECT \"users\".* FROM \"users\" WHERE NOT (users.sizes @> ARRAY['small']::text[])")
-  end
-
-  it "should work with ::text typed array" do
-    expect(User.with_any_sizes(["small"])).to match_array([@user2, @user3, @admin2])
-    expect(User.with_all_sizes(["small", "large"])).to match_array([@user2, @user3, @admin2])
-    expect(User.without_any_sizes("medium")).to match_array([@user2, @admin2])
-    expect(User.without_all_sizes("medium")).to match_array([@user2, @admin2])
-  end
-
-  it "should work with ::integer typed array" do
-    expect(User.with_any_codes([123])).to match_array([@user2, @user3, @admin1, @admin2])
-    expect(User.with_all_codes([123, 789])).to match_array([@user2, @user3, @admin1])
-    expect(User.without_any_codes(456)).to match_array([@user2])
-    expect(User.without_all_codes(456)).to match_array([@user2])
-  end
-
-  describe "#with_any_tags" do
-    it "returns users having any tags of args" do
-      expect(User.with_any_colors(["red", "blue"])).to match_array([@user1, @user2, @user3, @admin2])
-      expect(User.with_any_colors("red, blue")).to match_array([@user1, @user2, @user3, @admin2])
-    end
-  end
-
-  describe "#with_all_tags" do
-    it "returns users having all tags of args" do
-      expect(User.with_all_colors(["red", "blue"])).to match_array([@user1])
-      expect(User.with_all_colors("red, blue")).to match_array([@user1])
-    end
-  end
-
-  describe "#without_any_tags" do
-    it "returns users not having any tags of args" do
-      expect(User.without_any_colors(["red", "blue"])).to match_array([@admin1])
-      expect(User.without_any_colors("red, blue")).to match_array([@admin1])
-    end
-  end
-
-  describe "#without_all_tags" do
-    it "returns users not having all tags of args" do
-      expect(User.without_all_colors(["red", "blue"])).to match_array([@user2, @user3, @admin1, @admin2])
-      expect(User.without_all_colors("red, blue")).to match_array([@user2, @user3, @admin1, @admin2])
-    end
-  end
-
-  describe "#all_colors" do
-    it "returns all of tag_name" do
-      expect(User.all_colors).to match_array([@user1, @user2, @user3, @admin1, @admin2].map(&:colors).flatten.uniq)
-      expect(Admin.all_colors).to match_array([@admin1, @admin2].map(&:colors).flatten.uniq)
+  context "with allowed option" do
+    context "when options is not an array" do
+      it "raises an error" do
+        expect { User.acts_as_taggable_array_on :colors, allowed: "red, blue" }
+          .to raise_error(ActiveRecord::TagDefinitionError)
+      end
     end
 
-    it "returns filtered tags for tag_name with block" do
-      expect(User.all_colors { where(name: ["Ken", "Joe"]) }).to match_array([@user2, @user3].map(&:colors).flatten.uniq)
-      expect(Admin.all_colors { where(name: ["Dick", "Harry"]) }).to match_array([@admin1, @admin2].map(&:colors).flatten.uniq)
-    end
+    context "when options is an array" do
+      context "when tag is array of varchar type" do
+        shared_examples "allowed with varchar array" do
+          it "accepts allowed values as strings" do
+            expect(User.new(colors: %w[blue red])).to be_valid
+            expect(User.new(colors: %w[red])).to be_valid
+          end
 
-    it "returns filtered tags for tag_name with prepended scope" do
-      expect(User.where("tag like ?", "bl%").all_colors).to match_array([@user1, @user2, @user3].map(&:colors).flatten.uniq.select { |name| name.start_with? "bl" })
-      expect(Admin.where("tag like ?", "bl%").all_colors).to match_array([@admin2].map(&:colors).flatten.uniq.select { |name| name.start_with? "bl" })
-    end
+          it "accepts allowed values as symbols" do
+            expect(User.new(colors: %i[blue red])).to be_valid
+            expect(User.new(colors: %i[blue])).to be_valid
+          end
 
-    it "returns filtered tags for tag_name with prepended scope and bock" do
-      expect(User.where("tag like ?", "bl%").all_colors { where(name: ["Ken", "Joe"]) }).to match_array([@user2, @user3].map(&:colors).flatten.uniq.select { |name| name.start_with? "bl" })
-    end
-  end
+          it "does not accepts not allowed values as strings" do
+            expect(User.new(colors: [1, "red", 2])).not_to be_valid
+            expect(User.new(colors: %w[orange])).not_to be_valid
+            expect(User.new(colors: %w[red orange])).not_to be_valid
+            expect(User.new(colors: %i[red orange])).not_to be_valid
+          end
+        end
 
-  describe "#colors_cloud" do
-    it "returns tag cloud for tag_name" do
-      expect(User.colors_cloud).to match_array(
-        [@user1, @user2, @user3, @admin1, @admin2].map(&:colors).flatten.group_by(&:to_s).map { |k, v| [k, v.count] }
-      )
-    end
+        before do
+          User.acts_as_taggable_array_on :colors, allowed: allowed
+        end
 
-    it "returns filtered tag cloud for tag_name with block" do
-      expect(User.colors_cloud { where(name: ["Ken", "Joe"]) }).to match_array(
-        [@user2, @user3].map(&:colors).flatten.group_by(&:to_s).map { |k, v| [k, v.count] }
-      )
-    end
+        context "when allowed is an array of strings" do
+          let(:allowed) { %w[red blue] }
 
-    it "returns filtered tag cloud for tag_name with prepended scope" do
-      expect(User.where("tag like ?", "bl%").colors_cloud).to match_array(
-        [@user1, @user2, @user3, @admin2].map(&:colors).flatten.group_by(&:to_s).map { |k, v| [k, v.count] }.select { |name, count| name.start_with? "bl" }
-      )
-    end
+          it_behaves_like "allowed with varchar array"
+        end
 
-    it "returns filtered tag cloud for tag_name with prepended scope and block" do
-      expect(User.where("tag like ?", "bl%").colors_cloud { where(name: ["Ken", "Joe"]) }).to match_array(
-        [@user2, @user3].map(&:colors).flatten.group_by(&:to_s).map { |k, v| [k, v.count] }.select { |name, count| name.start_with? "bl" }
-      )
-    end
-  end
+        context "when allowed is an array of symbols" do
+          let(:allowed) { %i[red blue] }
 
-  describe "with complex scope" do
-    it "works properly" do
-      expect(User.without_any_colors("white").with_any_colors("blue").order(:created_at).limit(10)).to eq [@user1, @user3]
+          it_behaves_like "allowed with varchar array"
+        end
+      end
+
+      context "when tag is array of text type" do
+        shared_examples "allowed with text array" do
+          it "accepts allowed values as strings" do
+            expect(User.new(sizes: %w[small big])).to be_valid
+            expect(User.new(sizes: %w[big])).to be_valid
+          end
+
+          it "accepts allowed values as symbols" do
+            expect(User.new(sizes: %i[small big])).to be_valid
+            expect(User.new(sizes: %i[small])).to be_valid
+          end
+
+          it "does not accepts not allowed values as strings" do
+            expect(User.new(sizes: [1, "big", 2])).not_to be_valid
+            expect(User.new(sizes: %w[medium])).not_to be_valid
+            expect(User.new(sizes: %w[big medium])).not_to be_valid
+            expect(User.new(sizes: %i[big medium])).not_to be_valid
+          end
+        end
+
+        before do
+          User.acts_as_taggable_array_on :sizes, allowed: allowed
+        end
+
+        context "when allowed is an array of strings" do
+          let(:allowed) { %w[big small] }
+
+          it_behaves_like "allowed with text array"
+        end
+
+        context "when allowed is an array of symbols" do
+          let(:allowed) { %i[big small] }
+
+          it_behaves_like "allowed with text array"
+        end
+      end
+
+      context "when tag is array of integer type" do
+        before do
+          User.acts_as_taggable_array_on :codes, allowed: allowed
+        end
+
+        context "when allowed is an array of integers" do
+          let(:allowed) { [1002, 1003] }
+
+          it "accepts allowed values as integers" do
+            expect(User.new(codes: [1003, 1002])).to be_valid
+            expect(User.new(codes: [1002])).to be_valid
+          end
+
+          it "accepts allowed values as strings" do
+            expect(User.new(codes: [1003, "1002"])).to be_valid
+            expect(User.new(codes: ["1002"])).to be_valid
+          end
+
+          it "does not accepts not allowed values" do
+            expect(User.new(codes: [1, 1002, 2])).not_to be_valid
+            expect(User.new(codes: [1])).not_to be_valid
+            expect(User.new(codes: ["NaN"])).not_to be_valid
+          end
+        end
+      end
     end
   end
 end
