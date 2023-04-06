@@ -36,12 +36,15 @@ end
 
 def create_database
   ActiveRecord::Schema.define(version: 1) do
+    enable_extension("citext")
+
     create_table :users do |t|
       t.string :name
       t.string :type
       t.string :colors, array: true, default: []
       t.text :sizes, array: true, default: []
       t.integer :codes, array: true, default: []
+      t.citext :roles, array: true, default: []
       t.timestamps null: true
     end
   end
