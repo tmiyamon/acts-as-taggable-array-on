@@ -36,8 +36,6 @@ end
 
 def create_database
   ActiveRecord::Schema.define(version: 1) do
-    enable_extension("citext")
-
     create_table :users do |t|
       t.string :name
       t.string :type
