@@ -2,14 +2,15 @@ require "spec_helper"
 
 describe ActsAsTaggableArrayOn::Taggable do
   before do
-    @user1 = User.create name: "Tom", colors: ["red", "blue"], sizes: ["medium", "large"], codes: [456, 789]
-    @user2 = User.create name: "Ken", colors: ["black", "white", "red"], sizes: ["small", "large"], codes: [123, 789]
-    @user3 = User.create name: "Joe", colors: ["black", "blue"], sizes: ["small", "medium", "large"], codes: [123, 456, 789]
-    @admin1 = Admin.create name: "Dick", colors: ["purple", "orange"], sizes: ["medium", "large"], codes: [123, 456, 789]
-    @admin2 = Admin.create name: "Harry", colors: ["white", "blue"], sizes: ["small", "large"], codes: [456, 123]
+    @user1 = User.create name: "Tom", colors: ["red", "blue"], sizes: ["medium", "large"], codes: [456, 789], roles: ["user"]
+    @user2 = User.create name: "Ken", colors: ["black", "white", "red"], sizes: ["small", "large"], codes: [123, 789], roles: ["User"]
+    @user3 = User.create name: "Joe", colors: ["black", "blue"], sizes: ["small", "medium", "large"], codes: [123, 456, 789], roles: ["login"]
+    @admin1 = Admin.create name: "Dick", colors: ["purple", "orange"], sizes: ["medium", "large"], codes: [123, 456, 789], roles: ["USER", "Admin"]
+    @admin2 = Admin.create name: "Harry", colors: ["white", "blue"], sizes: ["small", "large"], codes: [456, 123], roles: ["Admin"]
 
     User.acts_as_taggable_array_on :colors
     User.acts_as_taggable_array_on :sizes
+    User.acts_as_taggable_array_on :roles
     User.taggable_array :codes
 
   end
@@ -70,6 +71,13 @@ describe ActsAsTaggableArrayOn::Taggable do
     expect(User.with_all_sizes(["small", "large"])).to match_array([@user2, @user3, @admin2])
     expect(User.without_any_sizes("medium")).to match_array([@user2, @admin2])
     expect(User.without_all_sizes("medium")).to match_array([@user2, @admin2])
+  end
+
+  it "should work with ::citext typed array" do
+    expect(User.with_any_roles(["admin"])).to match_array([@admin1, @admin2])
+    expect(User.with_all_roles(["User", "Admin"])).to match_array([@admin1])
+    expect(User.without_any_roles("USER")).to match_array([@user3, @admin2])
+    expect(User.without_all_roles("UseR")).to match_array([@user3, @admin2])
   end
 
   it "should work with ::integer typed array" do

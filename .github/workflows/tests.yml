@@ -40,5 +40,9 @@ jobs:
       - name: Create a database
         run: rake db:create
 
+      - name: Install citext extension
+        run: |
+          psql -U postgres -d "acts-as-taggable-array-on_test" -c "CREATE EXTENSION IF NOT EXISTS citext;"
+
       - name: Running a test
         run: bundle exec rspec
