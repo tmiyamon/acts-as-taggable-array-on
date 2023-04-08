@@ -1,4 +1,4 @@
-## Unreleased
+## 0.7.0
 - Standard linter used as a style guide
 - Ruby 2.4 support dropped
 - Support for Ruby 3.0 added
