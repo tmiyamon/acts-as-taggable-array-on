@@ -62,7 +62,12 @@ We currently tested only following types for underlying arrays:
 - `integer[]`
   - `t.integer :tags, array: true, default: []`
   - `add_column :users, :tags, :integer, array: true, default: []`
-
+- `citext[]`
+  - `t.citext :tags, array: true, default: []`
+  - `add_column :users, :tags, :citext, array: true, default: []`
+- `uuid[]`
+  - `t.uuid :tags, array: true, default: []`
+  - `add_column :users, :tags, :uuid, array: true, default: []`
 
 ## Usage
 
