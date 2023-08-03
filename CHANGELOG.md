@@ -4,6 +4,7 @@
 - Support for Ruby 3.0 added
 - Support for Rails 6.1 added
 - Support for citext arrays added
+- Support for UUID arrays added
 
 ## 0.6
 - Drop support for `EOL` versions of Ruby (below `2.4)`, and Rails (below `5.2`)
