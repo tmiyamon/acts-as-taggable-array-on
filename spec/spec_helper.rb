@@ -37,6 +37,7 @@ end
 def create_database
   ActiveRecord::Schema.define(version: 1) do
     enable_extension("citext") unless extensions.include?("citext")
+    enable_extension("uuid-ossp") unless extensions.include?("uuid-ossp")
 
     create_table :users do |t|
       t.string :name
@@ -45,6 +46,7 @@ def create_database
       t.text :sizes, array: true, default: []
       t.integer :codes, array: true, default: []
       t.citext :roles, array: true, default: []
+      t.uuid :references, array: true, default: []
       t.timestamps null: true
     end
   end

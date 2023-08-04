@@ -1,3 +1,6 @@
+## Unreleased
+- Support for UUID arrays added
+
 ## 0.7.0
 - Standard linter used as a style guide
 - Ruby 2.4 support dropped

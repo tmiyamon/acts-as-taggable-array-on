@@ -43,6 +43,9 @@ jobs:
       - name: Install citext extension
         run: |
           psql -U postgres -d "acts-as-taggable-array-on_test" -c "CREATE EXTENSION IF NOT EXISTS citext;"
+      - name: Install UUID extension
+        run: |
+          psql -U postgres -d "acts-as-taggable-array-on_test" -c 'CREATE EXTENSION IF NOT EXISTS "uuid-ossp";'
 
       - name: Running a test
         run: bundle exec rspec
