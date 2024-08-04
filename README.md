@@ -19,13 +19,14 @@ bundle
 
 
 ## Setup
-To use it, you need to have an array column to act as taggable - `tags`. 
+To use it, you need to have an array column to act as taggable - `tags`.
 
 ```ruby
 class CreateUser < ActiveRecord::Migration
   def change
     create_table :users do |t|
       t.string :tags, array: true, default: []
+      t.boolean :active, default: false
       t.timestamps
     end
     add_index :users, :tags, using: "gin"
@@ -141,6 +142,9 @@ Or simply use your existing scopes:
 ```ruby
 # scope :by_join_date, ->{order("created_at DESC")}
 User.all_tags.by_join_date
+
+# scope :active, -> { where(active: true) }
+User.active.all_tags
 ```
 
 SQL field is named "tag" and you can use it to modify the query.
@@ -162,6 +166,13 @@ You can use block to add scopes to the query.
 
 ```ruby
 User.tags_cloud { where(name: ["ken", "tom"]) }
+```
+
+Or use your existing scopes:
+
+```ruby
+# scope :active, -> { where(active: true) }
+User.active.tags_cloud
 ```
 
 SQL fields are named "tag" and "count" and you can use them to modify the query.

@@ -2,7 +2,7 @@ $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), "..", "lib"))
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 require "rspec"
 require "active_record/railtie"
-ActiveRecord::Base.logger = Logger.new(STDERR)
+ActiveRecord::Base.logger = Logger.new($stderr)
 ActiveRecord::Base.logger.level = 3
 
 require "acts-as-taggable-array-on"
@@ -12,6 +12,7 @@ require "acts-as-taggable-array-on"
 ActiveRecord::Migration.verbose = false
 
 class User < ActiveRecord::Base; end
+
 class Admin < User; end
 
 RSpec.configure do |config|
@@ -47,6 +48,7 @@ def create_database
       t.integer :codes, array: true, default: []
       t.citext :roles, array: true, default: []
       t.uuid :references, array: true, default: []
+      t.boolean :active, default: false
       t.timestamps null: true
     end
   end
